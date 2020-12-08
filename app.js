@@ -8,6 +8,8 @@ var mysql = require('mysql');
 var MySQLStore = require('express-mysql-session') (session);
 
 var indexRouter = require('./routes/index');
+var adminRouter = require('./routes/admin');
+var webapiRouter = require('./routes/webapi');
 require('dotenv').config();
 
 
@@ -36,6 +38,8 @@ app.use(session({
 }));
 
 app.use('/', indexRouter);
+app.use('/admin', adminRouter);
+app.use('/webapi', webapiRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
