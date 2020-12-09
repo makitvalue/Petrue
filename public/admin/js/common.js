@@ -23,6 +23,8 @@ function removeBackGroundImage(target) {
 }
 
 
+// $().html('') .innerHTML
+// $().append('') .insertAdjacentHTML('beforeend', '')
 function createSpinner() {
     body.insertAdjacentHTML('beforeend', '<div class="js-lds-roller lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>');
 }
