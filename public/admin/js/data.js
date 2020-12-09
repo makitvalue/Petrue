@@ -120,7 +120,7 @@ function getData(keyword) {
 function controlDataBottomMenu() {
     
     let selectedTr = document.querySelectorAll('.js-tr-data-list.selected');
-    let dataBottomMenu = document.querySelector('.js-data-bottom-menu')
+    let dataBottomMenu = document.querySelector('.js-data-bottom-menu');
 
     //메뉴 올리고 내리기
     if (selectedTr.length === 1) {
@@ -148,6 +148,7 @@ function controlDataBottomMenu() {
 
 
 function data() {
+    let menu = inputHiddenMenu.value;
 
     // 최초 데이터 로드
     getData('');
@@ -194,7 +195,7 @@ function data() {
     });
     
     //데이터관리 > 태그 일때 "태그 데이터 추가" 버튼 클릭 이벤트
-    if (buttonAddTag != undefined) {
+    if (dataType == 'data_tag') {
         buttonAddTag.addEventListener('click', function(){
 
             let html = '';
@@ -226,7 +227,7 @@ function data() {
             body.classList.add('overflow-hidden');
             body.insertAdjacentHTML('beforeend', html);
 
-            let divDialogAddTag = document.querySelector('.js-div-dialog-add-tag')
+            let divDialogAddTag = document.querySelector('.js-div-dialog-add-tag');
             let buttonSaveTagCancel = document.querySelector('.js-button-save-tag-cancel');
             let buttonSaveTag = document.querySelector('.js-button-save-tag');
             let buttonAddKeywordTag = document.querySelector('.js-button-add-keyword-tag');

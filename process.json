@@ -1,10 +1,10 @@
 {
 	"name": "Petrue",
-        "script": "bin/www",
-        "watch": true,
-        "watch_delay": 0,
-        "ignore_watch": ["node_modules", "upload", ".git"],
-        "watch_options": {
-                "followSymlinks": false
-        }
+    "script": "bin/www",
+    "watch": true,
+    "watch_delay": 0,
+    "ignore_watch": ["node_modules", "upload", ".git"],
+    "watch_options": {
+            "followSymlinks": false
+    }
 }
