@@ -38,7 +38,7 @@ function getData(keyword) {
             if (dataType == 'food') {
                 html += '<tr id="' + data.f_id + '" data_type="' + dataType + '" class="js-tr-data-list">';
                     html += '<td>' + data.f_id + '</td>';
-                    html += '<td><div class="thumb" style="background-image: url(/img/sample.jpg);"></div></td>';
+                    html += '<td><div class="thumb" style="background-image: url(/admin/img/sample.jpg);"></div></td>';
                     html += '<td class="name">' + data.f_name + '</td>';
                     html += '<td>' + data.f_keyword + '</td>';
                     html += '<td>' + data.f_eatable + '</td>';
@@ -48,7 +48,7 @@ function getData(keyword) {
             } else if (dataType == 'symptom') {
                 html += '<tr id="' + data.s_id + '" data_type="' + dataType + '" class="js-tr-data-list">';
                     html += '<td>' + data.s_id + '</td>';
-                    html += '<td><div class="thumb" style="background-image: url(/img/sample.jpg);"></div></td>';
+                    html += '<td><div class="thumb" style="background-image: url(/admin/img/sample.jpg);"></div></td>';
                     html += '<td class="name">' + data.s_name + '</td>';
                     html += '<td>' + data.s_keyword + '</td>';
                     html += '<td>' + data.s_created_date.split(' ')[0] + '</td>';
@@ -57,7 +57,7 @@ function getData(keyword) {
             } else if (dataType == 'disease') {
                 html += '<tr id="' + data.d_id + '" data_type="' + dataType + '" class="js-tr-data-list">';
                     html += '<td>' + data.d_id + '</td>';
-                    html += '<td><div class="thumb" style="background-image: url(/img/sample.jpg);"></div></td>';
+                    html += '<td><div class="thumb" style="background-image: url(/admin/img/sample.jpg);"></div></td>';
                     html += '<td class="name">' + data.d_name + '</td>';
                     html += '<td>' + data.d_keyword + '</td>';
                     html += '<td>' + data.d_created_date.split(' ')[0] + '</td>';
@@ -66,7 +66,7 @@ function getData(keyword) {
             } else if (dataType == 'product') {
                 html += '<tr id="' + data.p_id + '" data_type="' + dataType + '" class="js-tr-data-list">';
                     html += '<td>' + data.p_id + '</td>';
-                    html += '<td><div class="thumb" style="background-image: url(/img/sample.jpg);"></div></td>';
+                    html += '<td><div class="thumb" style="background-image: url(/admin/img/sample.jpg);"></div></td>';
                     html += '<td class="name">' + data.p_name + '</td>';
                     html += '<td>' + data.p_keyword + '</td>';
                     html += '<td>' + data.p_created_date.split(' ')[0] + '</td>';
