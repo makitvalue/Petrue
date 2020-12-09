@@ -195,7 +195,7 @@ function data() {
     });
     
     //데이터관리 > 태그 일때 "태그 데이터 추가" 버튼 클릭 이벤트
-    if (dataType == 'data_tag') {
+    if (dataType == 'tag') {
         buttonAddTag.addEventListener('click', function(){
 
             let html = '';
