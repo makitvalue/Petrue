@@ -18,9 +18,12 @@
         <link rel="stylesheet" type="text/css" href="/admin/css/main.css" />
     <% } else if (menu == 'test') { %>
         <link rel="stylesheet" type="text/css" href="/admin/css/test.css" />
+    <% } else if (menu == 'data_disease' || menu == 'data_product' || menu == 'data_symptom' || menu == 'data_tag' || menu == 'data_food' || menu == 'data_nutrient') { %>
+        <link rel="stylesheet" type="text/css" href="/admin/css/data.css" />
+    <% } else if (menu == 'data_disease_add' || menu == 'data_product_add' || menu == 'data_symptom_add' || menu == 'data_tag_add' || menu == 'data_food_add' || menu == 'data_nutrient_add') { %>
+        <link rel="stylesheet" type="text/css" href="/admin/css/data_add.css" />
     <% } %>
 
-    <link rel="stylesheet" type="text/css" href="/admin/css/data.css" />
     
 </head>
 <body>
@@ -110,8 +113,12 @@
         <script src="/admin/js/main.js"></script>
     <% } else if (menu == 'test') { %>
         <script src="/admin/js/test.js"></script>
+    <% } else if (menu == 'data_disease' || menu == 'data_product' || menu == 'data_symptom' || menu == 'data_tag' || menu == 'data_food' || menu == 'data_nutrient') { %>
+        <script src="/admin/js/data.js"></script>
+    <% } else if (menu == 'data_disease_add' || menu == 'data_product_add' || menu == 'data_symptom_add' || menu == 'data_tag_add' || menu == 'data_food_add' || menu == 'data_nutrient_add') { %>
+        <script src="/admin/js/data_add.js"></script>
     <% } %>
-    <script src="/admin/js/data.js"></script>
+
 
 
 </body>
