@@ -147,8 +147,7 @@ function controlDataBottomMenu() {
 }
 
 
-function data() {
-    let menu = inputHiddenMenu.value;
+function initData() {
 
     // 최초 데이터 로드
     getData('');
@@ -250,11 +249,10 @@ function data() {
             buttonAddKeywordTag.addEventListener('click', function() {
                 let value = inputKeywordTag.value.trim();
                 let isDuplicated = false;
-                let keywrods = document.querySelectorAll('.js-div-dialog-add-tag .dialog-body .form-box .keyword-wrapper p');
+                let keywords = document.querySelectorAll('.js-div-dialog-add-tag .dialog-body .form-box .keyword-wrapper p');
 
                 //키워드 중복검사
-                keywrods.forEach(function(keyword) {
-                    console.log(keyword.innerText);
+                keywords.forEach(function(keyword) {
                     if (keyword.innerText.trim() == value) {
                         isDuplicated = true;
                         return;
@@ -270,11 +268,11 @@ function data() {
 
                 divKeywordWrapper.insertAdjacentHTML('beforebegin', '<p>' + value + '</p>');
                 inputKeywordTag.value = '';
-                keywrods = document.querySelectorAll('.js-div-dialog-add-tag .dialog-body .form-box .keyword-wrapper p');
+                keywords = document.querySelectorAll('.js-div-dialog-add-tag .dialog-body .form-box .keyword-wrapper p');
 
                 //마지막 키워드에 클릭 리스너 만들기 (키워드 클릭 시 삭제)
-                if (keywrods.length > 0) {
-                    keywrods[keywrods.length-1].addEventListener('click', function() {
+                if (keywords.length > 0) {
+                    keywords[keywords.length-1].addEventListener('click', function() {
                         this.remove();
                     });
                 }
@@ -285,4 +283,4 @@ function data() {
         });
     }
 }
-data();
+initData();

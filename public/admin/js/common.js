@@ -2,12 +2,6 @@
 const body = document.querySelector('body');
 
 
-function common() {
-
-}
-common();
-
-
 function setBackgroundImage(target, url) {
     target.style.backgroundImage = 'url(' + url + ')';
 }
@@ -83,3 +77,7 @@ function convertDataTypeToString(dataType) {
     return string;
 }
 
+function initCommon() {
+
+}
+initCommon();

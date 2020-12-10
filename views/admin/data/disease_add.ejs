@@ -6,42 +6,44 @@
     <div class="form-box">
         <p class="form-title">썸네일 이미지</p>
         <div class="thumb-wrapper">
-            <form method="post" enctype="multipart/form-data"><input name="image" type="file" accept="image/jpeg,image/png" /></form>
-            <div id="divThumb" class="thumb"></div>
-            <button id="buttonUploadThumb" class="default">이미지 업로드</button>
+            <form method="post" enctype="multipart/form-data"><input name="image" class="js-input-upload-thumb" type="file" accept="image/jpeg,image/png" /></form>
+            <div class="js-div-thumb-image thumb"></div>
+            <button class="js-button-upload-thumb default">이미지 업로드</button>
         </div>
     </div>
 
     <div class="form-box">
         <p class="form-title">이름</p>
-        <input id="inputName" class="default" type="text" />
+        <input class="js-input-name default" type="text" />
     </div>
 
     <div class="form-box">
         <p class="form-title">키워드</p>
         <div class="keyword-wrapper">
-            <div id="divKeywordInput" class="keyword-input">
-                <input id="inputKeyword" class="default" type="text" />
-                <button id="buttonAddKeyword" class="default"><i class="fal fa-plus"></i></button>
+            <div class="keyword-input">
+                <input class="js-input-keyword default" type="text" />
+                <button class="js-button-add-keyword default"><i class="fal fa-plus"></i></button>
             </div>
         </div>
     </div>
 
     <div class="form-box">
         <p class="form-title">설명</p>
-        <textarea id="textareaDesc1" class="default"></textarea>
+        <textarea class="js-textarea-desc1 default"></textarea>
     </div>
 
     <div class="form-box">
         <p class="form-title">주의사항</p>
-        <textarea id="textareaDesc2" class="default"></textarea>
+        <textarea class="js-textarea-desc2 default"></textarea>
     </div>
 
     <div class="form-box">
         <p class="form-title">이미지</p>
         <div class="image-wrapper">
-            <form id="formTestImage" method="post" enctype="multipart/form-data"><input name="image" type="file" accept="image/jpeg,image/png" /></form>
-            <button id="buttonAddImage" class="default"><i class="fal fa-plus"></i></button>
+            <form method="post" enctype="multipart/form-data">
+                <input class="js-input-upload-image" name="image" type="file" accept="image/jpeg,image/png" />
+            </form>
+            <button class="js-button-add-image default"><i class="fal fa-plus"></i></button>
         </div>
     </div>
 
@@ -75,7 +77,7 @@
 
     <div class="buttons">
         <button class="default cancel" onclick="history.back();">취소</button>
-        <button id="buttonSaveData" data_type="disease" class="default">저장</button>
+        <button class="default js-button-save-data" data_type="disease" class="default">저장</button>
     </div>
 
 </div>

@@ -2,7 +2,7 @@
 const divTest = document.querySelector('.js-div-test');
 
 
-function test() {
+function initTest() {
 
     // setBackgroundImage(divTest, '/admin/img/sample_test.png');
 
@@ -16,4 +16,4 @@ function test() {
     }, 2000);
 
 }
-test();
+initTest();
