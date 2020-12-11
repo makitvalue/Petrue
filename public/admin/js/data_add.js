@@ -18,7 +18,7 @@ function initDataAdd() {
             setBackgroundImage(divThumbImage, result);
         }, function() {
             removeBackGroundImage(divThumbImage);
-        })
+        });
     });
 
     //키워드 추가
