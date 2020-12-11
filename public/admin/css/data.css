@@ -1,0 +1,108 @@
+.wrapper {
+    padding: 48px 0;
+}
+
+.wrapper .title {
+    font-size: 0;
+    margin: 0;
+}
+.wrapper .title span {
+    font-size: 2.5rem;
+}
+.wrapper .title i {
+    font-size: 2rem;
+    margin: 0 20px;
+}
+.wrapper .controller {
+    margin-top: 48px;
+    background: #EFEFEF;
+    padding: 28px;
+}
+.wrapper .controller hr {
+    border: 1px solid #DFDFDF;
+    border-top: none;
+    margin: 28px 0;
+}
+.wrapper .controller .search-box {
+    text-align: center;
+}
+.wrapper .controller .search-box select {
+    width: 100px;
+    height: 40px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    padding: 0 30px 0 8px;
+	background: url(/img/chevron-down-regular.svg) no-repeat calc(100% - 8px) 50%;
+	background-size: 14px auto;
+	background-color: #FFFFFF;
+}
+.wrapper .controller .search-box input {
+    width: 300px;
+    height: 40px;
+    margin: 0 12px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    padding: 0 8px;
+}
+.wrapper .controller .control-buttons {
+    text-align: right;
+    position: relative;
+}
+.wrapper .controller .control-buttons button#buttonSelectedRemove {
+    margin-right: 12px;
+}
+.wrapper .controller .control-buttons button.left {
+    position: absolute;
+    left: 0;
+	bottom: 50%;
+    -webkit-transform: translateY(50%);
+	-moz-transform: translateY(50%);
+	-ms-transform: translateY(50%);
+	-o-transform: translateY(50%);
+	transform: translateY(50%);
+}
+
+.wrapper table {
+    margin-top: 48px;
+    width: 100%;
+    border-collapse: collapse;
+}
+.wrapper table thead tr th {
+    padding: 12px 0;
+    font-size: 1.2rem;
+    font-weight: 500;
+    background: #666666;
+    color: #FFFFFF;
+}
+.wrapper table thead tr th:first-child {
+    border-radius: 4px 0 0 4px;
+}
+.wrapper table thead tr th:last-child {
+    border-radius: 0 4px 4px 0;
+}
+.wrapper table tbody tr {
+    border-bottom: 1px solid #DFDFDF;
+    cursor: pointer;
+}
+.wrapper table tbody tr:hover {
+    background: #EFEFEF;
+}
+.wrapper table tbody tr.selected {
+    background: #fff5ee;
+}
+.wrapper table tbody tr td {
+    text-align: center;
+    padding: 6px 0;
+}
+.wrapper table tbody tr td .thumb {
+    width: 80px;
+    height: 60px;
+    display: inline-block;
+    vertical-align: middle;
+
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
