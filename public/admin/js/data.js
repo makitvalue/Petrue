@@ -29,7 +29,7 @@ function getData(keyword) {
         }
 
         let html = '';
-        let dataList = response.result.data_list;
+        let dataList = response.result.dataList;
 
         for (let i = 0; i < dataList.length; i++) {
             let data = dataList[i];
