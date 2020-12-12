@@ -86,17 +86,14 @@
         <% } else if (menu == 'data_tag') { %>
             <% include ./data/tag %>
 
-
-
-
         <% } else if (menu == 'test') { %>
             <% include ./test %>
         <% } %>
 
-        <nav class="js-data-bottom-menu data-bottom-menu">
+        <nav class="js-nav-data-bottom-menu data-bottom-menu">
             <div class="wrapper">
                 <button class="default">자세히</button>
-                <button class="default">삭제</button>
+                <button class="js-button-bottom-menu-delete default">삭제</button>
                 <button class="default">수정</button>
                 <button class="default">연관 데이터 보기</button>
             </div>
@@ -108,6 +105,7 @@
     </footer>
 
     <script src="/admin/js/common.js"></script>
+    <script src="/admin/js/config.js"></script>
 
     <% if (menu == 'main') { %>
         <script src="/admin/js/main.js"></script>

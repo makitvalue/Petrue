@@ -33,7 +33,7 @@
     border: none;
     border-radius: 4px;
     padding: 0 30px 0 8px;
-	background: url(/img/chevron-down-regular.svg) no-repeat calc(100% - 8px) 50%;
+	background: url(/img/chevron-down-regular.png) no-repeat calc(100% - 8px) 50%;
 	background-size: 14px auto;
 	background-color: #FFFFFF;
 }

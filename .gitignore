@@ -125,3 +125,5 @@ dist
 .DS_Store
 bin
 .jshintrc
+public/images/*
+upload/*

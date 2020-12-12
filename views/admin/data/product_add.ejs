@@ -18,6 +18,11 @@
     </div>
 
     <div class="form-box">
+        <p class="form-title">부가설명</p>
+        <input class="js-input-sub-name default" type="text" />
+    </div>
+
+    <div class="form-box">
         <p class="form-title">키워드</p>
         <div class="keyword-wrapper">
             <div class="keyword-input">
@@ -27,6 +32,37 @@
         </div>
     </div>
 
+    <div class="form-box">
+        <p class="form-title">카테고리</p>
+        <select class="js-select-product-category default" type="text" >
+            
+        </select>
+    </div>
+    <div class="form-box">
+        <p class="form-title">가격</p>
+        <input class="js-input-price default" type="text" />
+    </div>
+
+    <div class="form-box">
+        <p class="form-title">원산지</p>
+        <input class="js-input-origin default" type="text" />
+    </div>
+
+    <div class="form-box">
+        <p class="form-title">제조사</p>
+        <input class="js-input-manufacturer default" type="text" />
+    </div>
+
+    <div class="form-box">
+        <p class="form-title">포장단위</p>
+        <input class="js-input-packing-volume default" type="text" />
+    </div>
+    <div class="form-box">
+        <p class="form-title">섭취 권장 대상</p>
+        <input class="js-input-recommended default" type="text" />
+    </div>
+
+    
     <div class="form-box">
         <p class="form-title">설명</p>
         <textarea class="js-textarea-desc1 default"></textarea>
@@ -39,7 +75,7 @@
 
     <div class="form-box">
         <p class="form-title">이미지</p>
-        <div class="image-wrapper">
+        <div class="js-div-image-wrapper image-wrapper">
             <form method="post" enctype="multipart/form-data">
                 <input class="js-input-upload-image" name="image" type="file" accept="image/jpeg,image/png" />
             </form>
@@ -47,31 +83,20 @@
         </div>
     </div>
 
-    <div class="form-box" data_type="disease">
-        <p class="form-title">연관 질병</p>
-        <div class="relationship-wrapper">
-            <button class="default" data_type="disease"><i class="fal fa-plus"></i></button>
+    <div class="form-box">
+        <p class="form-title">상세 이미지</p>
+        <div class="js-div-detail-image-wrapper image-wrapper">
+            <form method="post" enctype="multipart/form-data">
+                <input class="js-input-upload-image-detail" name="image" type="file" accept="image/jpeg,image/png" />
+            </form>
+            <button class="js-button-add-image-detail default"><i class="fal fa-plus"></i></button>
         </div>
     </div>
 
-    <div class="form-box" data_type="symptom">
-        <p class="form-title">연관 증상</p>
+    <div class="form-box" data_type="nutrient">
+        <p class="form-title">연관 영양소</p>
         <div class="relationship-wrapper">
-            <button class="default" data_type="symptom"><i class="fal fa-plus"></i></button>
-        </div>
-    </div>
-
-    <div class="form-box" data_type="food">
-        <p class="form-title">연관 음식</p>
-        <div class="relationship-wrapper">
-            <button class="default" data_type="food"><i class="fal fa-plus"></i></button>
-        </div>
-    </div>
-
-    <div class="form-box" data_type="tag">
-        <p class="form-title">기타 태그</p>
-        <div class="relationship-wrapper">
-            <button class="default" data_type="tag"><i class="fal fa-plus"></i></button>
+            <button class="default" data_type="nutrient"><i class="fal fa-plus"></i></button>
         </div>
     </div>
 

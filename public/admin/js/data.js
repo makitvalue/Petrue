@@ -1,10 +1,9 @@
-
-const inputHiddenMenu = document.querySelector('.js-input-hidden-menu');
 const tbodyDataList = document.querySelector('.js-tbody-data-list');
 const inputDataSearch = document.querySelector('.js-input-data-search');
 const buttonDataSearch = document.querySelector('.js-button-data-search');
 const dataType = tbodyDataList.getAttribute('data_type');
 const buttonSelectedRemove = document.querySelector('.js-button-selected-remove');
+const buttonBottomMenuDelete = document.querySelector('.js-button-bottom-menu-delete');
 const buttonSelectAll = document.querySelector('.js-button-select-all');
 const buttonAddTag = document.querySelector('.js-button-add-tag');
 
@@ -14,7 +13,7 @@ function getData(keyword) {
     createSpinner();
     tbodyDataList.innerHTML = '';
     
-    fetch('/webapi/get/data?' + new URLSearchParams({
+    fetch('/admin/webapi/get/data?' + new URLSearchParams({
         dataType: dataType,
         keyword: keyword
     }))
@@ -38,7 +37,7 @@ function getData(keyword) {
             if (dataType == 'food') {
                 html += '<tr id="' + data.f_id + '" data_type="' + dataType + '" class="js-tr-data-list">';
                     html += '<td>' + data.f_id + '</td>';
-                    html += '<td><div class="thumb" style="background-image: url(/admin/img/sample.jpg);"></div></td>';
+                    html += '<td><div class="thumb" style="background-image: url('+ data.f_thumb_path +');"></div></td>';
                     html += '<td class="name">' + data.f_name + '</td>';
                     html += '<td>' + data.f_keyword + '</td>';
                     html += '<td>' + data.f_eatable + '</td>';
@@ -48,7 +47,7 @@ function getData(keyword) {
             } else if (dataType == 'symptom') {
                 html += '<tr id="' + data.s_id + '" data_type="' + dataType + '" class="js-tr-data-list">';
                     html += '<td>' + data.s_id + '</td>';
-                    html += '<td><div class="thumb" style="background-image: url(/admin/img/sample.jpg);"></div></td>';
+                    html += '<td><div class="thumb" style="background-image: url('+ data.s_thumb_path +');"></div></td>';
                     html += '<td class="name">' + data.s_name + '</td>';
                     html += '<td>' + data.s_keyword + '</td>';
                     html += '<td>' + data.s_created_date.split(' ')[0] + '</td>';
@@ -57,7 +56,7 @@ function getData(keyword) {
             } else if (dataType == 'disease') {
                 html += '<tr id="' + data.d_id + '" data_type="' + dataType + '" class="js-tr-data-list">';
                     html += '<td>' + data.d_id + '</td>';
-                    html += '<td><div class="thumb" style="background-image: url(/admin/img/sample.jpg);"></div></td>';
+                    html += '<td><div class="thumb" style="background-image: url('+ data.d_thumb_path +');"></div></td>';
                     html += '<td class="name">' + data.d_name + '</td>';
                     html += '<td>' + data.d_keyword + '</td>';
                     html += '<td>' + data.d_created_date.split(' ')[0] + '</td>';
@@ -66,7 +65,7 @@ function getData(keyword) {
             } else if (dataType == 'product') {
                 html += '<tr id="' + data.p_id + '" data_type="' + dataType + '" class="js-tr-data-list">';
                     html += '<td>' + data.p_id + '</td>';
-                    html += '<td><div class="thumb" style="background-image: url(/admin/img/sample.jpg);"></div></td>';
+                    html += '<td><div class="thumb" style="background-image: url('+ data.p_thumb_path +');"></div></td>';
                     html += '<td class="name">' + data.p_name + '</td>';
                     html += '<td>' + data.p_keyword + '</td>';
                     html += '<td>' + data.p_created_date.split(' ')[0] + '</td>';
@@ -120,7 +119,7 @@ function getData(keyword) {
 function controlDataBottomMenu() {
     
     let selectedTr = document.querySelectorAll('.js-tr-data-list.selected');
-    let dataBottomMenu = document.querySelector('.js-data-bottom-menu');
+    let dataBottomMenu = document.querySelector('.js-nav-data-bottom-menu');
 
     //메뉴 올리고 내리기
     if (selectedTr.length === 1) {
@@ -144,6 +143,41 @@ function controlDataBottomMenu() {
     } else {
         buttonSelectedRemove.classList.add('disabled');
     }
+}
+
+function deleteData() {
+    let selectedTr = document.querySelectorAll('table tbody tr.selected');
+    if(buttonSelectedRemove.classList.contains('disabled') || selectedTr.length === 0 ) {
+        return;
+    }
+
+    let deleteIds = [];
+    selectedTr.forEach(function(tr) {
+        deleteIds.push(tr.getAttribute('id'));
+    });
+
+    let dataList = {
+        dataType: dataType,
+        ids: deleteIds
+    };
+    
+    fetch('/admin/webapi/delete/data', {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataList), // body data type must match "Content-Type" header
+    })
+    .then(data => data.json())
+    .then(function(response) {
+        if (response.status != 'OK') {
+            alert("삭제 에러 발생");
+            return;
+        } 
+        alert("삭제되었습니다!");
+        getData('');
+        controlDataBottomMenu();
+    });
 }
 
 
@@ -185,13 +219,9 @@ function initData() {
     });
 
     //선택된 데이터 삭제
-    buttonSelectedRemove.addEventListener('click', function() {
-        let selectedTr = document.querySelectorAll('table tbody tr.selected');
-        if(this.classList.contains('disabled') || selectedTr.length === 0 ) {
-            return;
-        }
-        alert("삭제버튼 정상동작");
-    });
+    buttonSelectedRemove.addEventListener('click', deleteData);
+    buttonBottomMenuDelete.addEventListener('click', deleteData);
+
     
     //데이터관리 > 태그 일때 "태그 데이터 추가" 버튼 클릭 이벤트
     if (dataType == 'tag') {
