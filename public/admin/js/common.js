@@ -1,4 +1,4 @@
-
+const inputHiddenMenu = document.querySelector('.js-input-hidden-menu');
 const body = document.querySelector('body');
 
 

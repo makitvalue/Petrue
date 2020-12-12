@@ -1,10 +1,9 @@
-
-const inputHiddenMenu = document.querySelector('.js-input-hidden-menu');
 const tbodyDataList = document.querySelector('.js-tbody-data-list');
 const inputDataSearch = document.querySelector('.js-input-data-search');
 const buttonDataSearch = document.querySelector('.js-button-data-search');
 const dataType = tbodyDataList.getAttribute('data_type');
 const buttonSelectedRemove = document.querySelector('.js-button-selected-remove');
+const buttonBottomMenuDelete = document.querySelector('.js-button-bottom-menu-delete');
 const buttonSelectAll = document.querySelector('.js-button-select-all');
 const buttonAddTag = document.querySelector('.js-button-add-tag');
 
@@ -120,7 +119,7 @@ function getData(keyword) {
 function controlDataBottomMenu() {
     
     let selectedTr = document.querySelectorAll('.js-tr-data-list.selected');
-    let dataBottomMenu = document.querySelector('.js-data-bottom-menu');
+    let dataBottomMenu = document.querySelector('.js-nav-data-bottom-menu');
 
     //메뉴 올리고 내리기
     if (selectedTr.length === 1) {
@@ -144,6 +143,41 @@ function controlDataBottomMenu() {
     } else {
         buttonSelectedRemove.classList.add('disabled');
     }
+}
+
+function deleteData() {
+    let selectedTr = document.querySelectorAll('table tbody tr.selected');
+    if(buttonSelectedRemove.classList.contains('disabled') || selectedTr.length === 0 ) {
+        return;
+    }
+
+    let deleteIds = [];
+    selectedTr.forEach(function(tr) {
+        deleteIds.push(tr.getAttribute('id'));
+    });
+
+    let dataList = {
+        dataType: dataType,
+        ids: deleteIds
+    };
+    
+    fetch('/webapi/delete/data', {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataList), // body data type must match "Content-Type" header
+    })
+    .then(data => data.json())
+    .then(function(response) {
+        if (response.status != 'OK') {
+            alert("삭제 에러 발생");
+            return;
+        } 
+        alert("삭제되었습니다!");
+        getData('');
+        controlDataBottomMenu();
+    });
 }
 
 
@@ -185,13 +219,9 @@ function initData() {
     });
 
     //선택된 데이터 삭제
-    buttonSelectedRemove.addEventListener('click', function() {
-        let selectedTr = document.querySelectorAll('table tbody tr.selected');
-        if(this.classList.contains('disabled') || selectedTr.length === 0 ) {
-            return;
-        }
-        alert("삭제버튼 정상동작");
-    });
+    buttonSelectedRemove.addEventListener('click', deleteData);
+    buttonBottomMenuDelete.addEventListener('click', deleteData);
+
     
     //데이터관리 > 태그 일때 "태그 데이터 추가" 버튼 클릭 이벤트
     if (dataType == 'tag') {

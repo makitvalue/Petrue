@@ -27,6 +27,14 @@
     margin-top: 12px;
     padding: 8px 16px;
 }
+.wrapper.add .form-box > input.name {
+    width: 30%;
+}
+.wrapper.add .form-box > select {
+    font-size: 1rem;
+    margin-top: 12px;
+    padding: 8px 16px;
+}
 .wrapper.add .form-box > textarea {
     margin-top: 12px;
     width: 100%;
