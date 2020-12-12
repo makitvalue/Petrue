@@ -190,7 +190,7 @@ router.post('/webapi/save/data', (req, res) => {
     let category = '';
     let price = '';
     let origin = '';
-    let manufacture = '';
+    let manufacturer = '';
     let packingVolume = '';
     let recommended = ''; 
     
@@ -210,12 +210,12 @@ router.post('/webapi/save/data', (req, res) => {
         category = req.body.category;
         price = req.body.price;
         origin = req.body.origin;
-        manufacture = req.body.manufacture;
+        manufacturer = req.body.manufacturer;
         packingVolume = req.body.packingVolume;
         recommended = req.body.recommended; 
 
-        params = [subName, category, price, origin, manufacture, packingVolume, recommended];
-        query = "INSERT INTO t_products(p_name, keyword, p_price, p_origin, p_mabufacture, p_category1, p_packing_volume, p_recommended, p_subName) VALUE(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        params = [name, keyword, price, origin, manufacturer, category, packingVolume, recommended, subName];
+        query = "INSERT INTO t_products(p_name, p_keyword, p_price, p_origin, p_manufacturer, p_category, p_packing_volume, p_recommended, p_sub_name) VALUE(?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
     o.mysql.query(query, params, (error, result) => {
@@ -224,7 +224,7 @@ router.post('/webapi/save/data', (req, res) => {
             res.json({status: "ERR_DB_INSERT"});
             return;
         }
-        res.json({status: "OK"});
+        res.json({status: "OK", p_id: result.insertId});
     });
 
 });
@@ -255,6 +255,7 @@ router.post('/webapi/delete/data', (req, res) => {
             res.json({status: "ERR_DB_DELETE"});
             return;
         }
+        console.log(result);
         res.json({status: 'OK'});
     });
 
@@ -276,7 +277,7 @@ router.post('/webapi/upload/image', (req, res) => {
         }
 
         let dataType = body.dataType;
-        let mode = body.mode; // THUMB, DATA_IMAGE, DATA_IMAGE_DESC
+        let mode = body.mode; // THUMB, DATA_IMAGE, DATA_IMAGE_DETAIL
         let dataId = body.dataId; // 데이터 아이디
         let order = body.order; // IMAGE일 경우 순서
         
@@ -290,7 +291,7 @@ router.post('/webapi/upload/image', (req, res) => {
 
             if (mode == 'THUMB') {
                 // UPDATE data thumbnail
-                let query = "UPDATE t_" + table + "s SET " + t + "_thumb_path = ? WHERE " + t + "_id = ?";
+                let query = "UPDATE " + table + " SET " + t + "_thumb_path = ? WHERE " + t + "_id = ?";
                 let params = [imagePath, dataId];
                 o.mysql.query(query, params, function(error, result) {
                     if (error) {
@@ -302,10 +303,10 @@ router.post('/webapi/upload/image', (req, res) => {
                     res.json({ status: 'OK', imagePath: imagePath });
                 });
 
-            } else if (mode == 'DATA_IMAGE' || mode == 'DATA_IMAGE_DESC') {
+            } else if (mode == 'DATA_IMAGE' || mode == 'DATA_IMAGE_DETAIL') {
                 // INSERT images
                 let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order) VALUES (?, ?, ?, ?)";
-                let params = ['IMAGE', imagePath, dataId, order];
+                let params = [mode, imagePath, dataId, order];
 
                 o.mysql.query(query, params, function(error, result) {
                     if (error) {

@@ -50,7 +50,7 @@
 
     <div class="form-box">
         <p class="form-title">제조사</p>
-        <input class="js-input-manufacture default" type="text" />
+        <input class="js-input-manufacturer default" type="text" />
     </div>
 
     <div class="form-box">
@@ -63,7 +63,6 @@
     </div>
 
     
-
     <div class="form-box">
         <p class="form-title">설명</p>
         <textarea class="js-textarea-desc1 default"></textarea>
@@ -76,11 +75,21 @@
 
     <div class="form-box">
         <p class="form-title">이미지</p>
-        <div class="image-wrapper">
+        <div class="js-div-image-wrapper image-wrapper">
             <form method="post" enctype="multipart/form-data">
                 <input class="js-input-upload-image" name="image" type="file" accept="image/jpeg,image/png" />
             </form>
             <button class="js-button-add-image default"><i class="fal fa-plus"></i></button>
+        </div>
+    </div>
+
+    <div class="form-box">
+        <p class="form-title">상세 이미지</p>
+        <div class="js-div-detail-image-wrapper image-wrapper">
+            <form method="post" enctype="multipart/form-data">
+                <input class="js-input-upload-image-detail" name="image" type="file" accept="image/jpeg,image/png" />
+            </form>
+            <button class="js-button-add-image-detail default"><i class="fal fa-plus"></i></button>
         </div>
     </div>
 

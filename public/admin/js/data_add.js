@@ -4,16 +4,22 @@ const divThumbImage =  document.querySelector('.js-div-thumb-image');
 const buttonAddKeyword = document.querySelector('.js-button-add-keyword');
 const inputKeyword = document.querySelector('.js-input-keyword');
 const buttonAddImage = document.querySelector('.js-button-add-image');
+const buttonAddImageDetail = document.querySelector('.js-button-add-image-detail');
 const inputUploadImage = document.querySelector('.js-input-upload-image');
+const inputUploadImageDetail = document.querySelector('.js-input-upload-image-detail');
 const buttonSaveData = document.querySelector('.js-button-save-data');
 const dataType = inputHiddenMenu.getAttribute('value').split('data_')[1].split('_add')[0];
 const inputPrice = document.querySelector('.js-input-price');
 const inputOrigin = document.querySelector('.js-input-origin');
-const inputManufacture = document.querySelector('.js-input-manufacture');
+const inputManufacturer = document.querySelector('.js-input-manufacturer');
 const selectProductCategory = document.querySelector('.js-select-product-category');
 const inputPackingVolume = document.querySelector('.js-input-packing-volume');
 const inputRecommended = document.querySelector('.js-input-recommended');
 const inputSubName = document.querySelector('.js-input-sub-name');
+const divImageWrapper = document.querySelector('.js-div-image-wrapper');
+const divDetailImageWrapper = document.querySelector('.js-div-detail-image-wrapper');
+
+
 
 function initDataAdd() {
 
@@ -25,7 +31,20 @@ function initDataAdd() {
                 html += '<option value=' + categories[i].categoryId + '>' + categories[i].categoryName + '</option>';
             }
             selectProductCategory.innerHTML = html;
-            console.log(selectProductCategory);
+
+            //이미지 추가
+            buttonAddImageDetail.addEventListener('click', function() {
+                inputUploadImageDetail.click();
+            });
+
+            // 업로드 이미지 파일 변경이벤트 (이미지 업로드 이벤트) 
+            inputUploadImageDetail.addEventListener('change', function(event) {
+                changeInputImage(event, function(result) {
+                    addImageControl(result, inputUploadImageDetail);
+                }, function() {
+
+                });
+            });
         }
 
         //썸네일 이미지 업로드
@@ -49,83 +68,7 @@ function initDataAdd() {
         // 업로드 이미지 파일 변경이벤트 (이미지 업로드 이벤트) 
         inputUploadImage.addEventListener('change', function(event) {
             changeInputImage(event, function(result) {
-                let newImageBoxIndex = document.querySelectorAll('.wrapper.add .form-box .image-wrapper .image-box').length + 1;
-                let html = '';
-                html += '<div class="image-box">';
-                    html += '<select class="default">';
-                        for (var i = 0; i < newImageBoxIndex; i++) {
-                            if (i == newImageBoxIndex - 1) {
-                                html += '<option value="' + (i + 1) + '" selected>' + (i + 1) + '</option>';
-                            } else {
-                                html += '<option value="' + (i + 1) + '">' + (i + 1) + '</option>';
-                            }
-                        }
-                    html += '</select>';
-                    html += '<form method="post" enctype="multipart/form-data" temp="TRUE"></form>';
-                    html += '<div class="image" style="background-image: url(' + result + ')"></div>';
-                html += '</div>';
-                
-                buttonAddImage.insertAdjacentHTML('beforebegin', html);
-
-                let cloneInput = inputUploadImage.cloneNode(false);
-                //엘리먼트를 넣을떄는 insertAdjacentElement 써야함
-                let newInput = document.querySelector('.wrapper .form-box .image-wrapper .image-box form[temp=TRUE]');
-                newInput.insertAdjacentElement('beforeend', cloneInput);
-                newInput.setAttribute('temp', 'FALSE');
-                inputUploadImage.value = '';              
-                
-                // 이미지 추가 될때마다 select option 늘리기
-                let imageSelectList = document.querySelectorAll('.wrapper .form-box .image-wrapper .image-box select');
-                imageSelectList.forEach(function(select) {
-                    let optionCnt = select.length;
-                    if (optionCnt == newImageBoxIndex) return;
-                    select.insertAdjacentHTML('beforeend', '<option value="' + newImageBoxIndex + '">' + newImageBoxIndex + '</option>');
-                });
-
-                //이미지 제거
-                let imageList = document.querySelectorAll('.wrapper.add .form-box .image-wrapper .image-box .image');
-                if (imageList.length > 0) {
-                    imageList[imageList.length-1].addEventListener('click', function() {
-                        this.parentElement.remove();
-                        resetImageBoxSelect();
-                    });
-                    
-                }
-                
-                //셀렉트 변경 이벤트 (이미지 순서 바꾸기)
-                imageSelectList.forEach(function(select) {
-                    select.addEventListener('change', function() {
-                        let targetIndex = parseInt(select.value);
-
-                        let thisImageBox = select.parentElement;
-                        let targetImageBox = document.querySelector('.wrapper .form-box .image-wrapper .image-box:nth-child(' + (targetIndex + 1) + ')');
-        
-                        let thisCloneInput = thisImageBox.querySelector('form').querySelector('input').cloneNode(false);
-                        let targetCloneInput = targetImageBox.querySelector('form').querySelector('input').cloneNode(false);
-
-                        let thisImageUrl = getBackgroundImage(thisImageBox.getElementsByClassName("image")[0]);
-                        let targetImageUrl = getBackgroundImage(targetImageBox.getElementsByClassName("image")[0]);
-
-                        setBackgroundImage(thisImageBox.getElementsByClassName("image")[0], targetImageUrl);
-                        setBackgroundImage(targetImageBox.getElementsByClassName("image")[0], thisImageUrl);
-
-
-                        targetImageBox.querySelector('form').querySelector('input').remove();
-                        targetImageBox.querySelector('form').insertAdjacentElement('beforeend', thisCloneInput);
-                        thisImageBox.querySelector('form').querySelector('input').remove();
-                        thisImageBox.querySelector('form').insertAdjacentElement('beforeend', targetCloneInput);
-
-
-                        // targetImageBox.getElementsByTagName("form")[0].innerHTML(thisCloneInput);
-                        // thisImageBox.getElementsByTagName("form")[0].innerHTML(targetCloneInput);
-
-                        resetImageBoxSelect();
-
-                    });
-                });
-
-
-
+                addImageControl(result, inputUploadImage);
             }, function() {
 
             });
@@ -264,7 +207,7 @@ function initDataAdd() {
         let category = '';
         let price = '';
         let origin = '';
-        let manufacture = '';
+        let manufacturer = '';
         let packingVolume = '';
         let recommended = ''; 
 
@@ -286,7 +229,7 @@ function initDataAdd() {
             category = selectProductCategory.value;
             price = inputPrice.value.trim();
             origin = inputOrigin.value.trim();
-            manufacture = inputManufacture.value.trim();
+            manufacturer = inputManufacturer.value.trim();
             packingVolume = inputPackingVolume.value.trim();
             recommended = inputRecommended.value.trim();
         }
@@ -302,15 +245,16 @@ function initDataAdd() {
             category: category,
             price: price,
             origin: origin,
-            manufacture: manufacture,
+            manufacturer: manufacturer,
             packingVolume: packingVolume,
             recommended: recommended
         };
 
+        createSpinner();
         fetch('/admin/webapi/save/data', {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(dataList), // body data type must match "Content-Type" header
         })
@@ -319,9 +263,122 @@ function initDataAdd() {
             if (response.status != 'OK') {
                 alert("저장 에러 발생");
                 return;
-            } 
-            alert("저장되었습니다!");
-            history.back();
+            }
+            let p_id = response.p_id;
+
+            // thumb
+            let form = inputUploadThumb.parentElement;
+            let formData = new FormData(form);
+            formData.append('dataId', p_id);
+            formData.append('mode', 'THUMB');
+            formData.append('dataType', dataType);
+
+            let imageFormList = [];
+            let imageDetailFormList = [];
+            
+            fetch('/admin/webapi/upload/image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(data => data.json())
+            .then((response) => {
+                if (response.status != 'OK') {
+                    alert("이미지 저장 에러!");
+                    return;
+                }
+
+                imageFormList = divImageWrapper.querySelectorAll('.image-box form');
+                imageDetailFormList = divDetailImageWrapper.querySelectorAll('.image-box form');
+
+                let totalCnt = imageFormList.length + imageDetailFormList.length;
+                console.log(totalCnt);
+
+                if (totalCnt == 0) {
+                    alert('성공');
+                    removeSpinner();
+                    return;
+                }
+
+                let responseCnt = 0;
+                imageFormList.forEach(function(imageForm, index) {
+                    
+                    formData = new FormData(imageForm);
+                    formData.append('dataId', p_id);
+                    formData.append('mode', 'DATA_IMAGE');
+                    formData.append('dataType', dataType);
+                    formData.append('order', index+1);
+
+                    fetch('/admin/webapi/upload/image', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(data => data.json())
+                    .then((response) => {
+                        if (response.status != 'OK') {
+                            removeSpinner();
+                            alert('이미지 저장 실패');
+                            return;
+                        }
+                        
+                        responseCnt++;
+
+                        if (responseCnt == totalCnt) {
+                            removeSpinner();
+                            alert('이미지 저장 성공');
+                            location.href = '/admin/data/' + dataType;
+                            return;
+                        }
+                    });
+
+                });
+
+                imageDetailFormList.forEach(function(imageForm, index) {
+                    formData = new FormData(imageForm);
+                    formData.append('dataId', p_id);
+                    formData.append('mode', 'DATA_IMAGE_DETAIL');
+                    formData.append('dataType', dataType);
+                    formData.append('order', index+1);
+
+                    fetch('/admin/webapi/upload/image', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(data => data.json())
+                    .then((response) => {
+                        if (response.status != 'OK') {
+                            removeSpinner();
+                            alert('이미지 저장 실패');
+                            return;
+                        }
+
+                        responseCnt++;
+
+                        if (responseCnt == totalCnt) {
+                            removeSpinner();
+                            alert('이미지 저장 성공');
+                            location.href = '/admin/data/' + dataType;
+                            return;
+                        }
+                    });
+                });
+
+                
+
+            });
+
+            
+            let responseCnt = 0;
+
+            // image
+            // .then(function(response) { 
+                    // if (imageList.length == responseCnt) {
+                    //     return;
+                    // }
+
+                    // responseCnt++;
+            // })
+
+            // image-detail
         });
 
 
@@ -489,9 +546,96 @@ function getDataToAdd(dataType, keyword) {
     });
 }
 
+function addImageControl(result, imageTarget) {
+    let newImageBoxIndex = imageTarget.parentElement.parentElement.querySelectorAll('.image-box').length + 1;
+    let html = '';
+    html += '<div class="image-box">';
+        html += '<select class="default">';
+            for (var i = 0; i < newImageBoxIndex; i++) {
+                if (i == newImageBoxIndex - 1) {
+                    html += '<option value="' + (i + 1) + '" selected>' + (i + 1) + '</option>';
+                } else {
+                    html += '<option value="' + (i + 1) + '">' + (i + 1) + '</option>';
+                }
+            }
+        html += '</select>';
+        html += '<form method="post" enctype="multipart/form-data" temp="TRUE"></form>';
+        html += '<div class="image" style="background-image: url(' + result + ')"></div>';
+    html += '</div>';
+    
+    if (imageTarget == inputUploadImage) {
+        buttonAddImage.insertAdjacentHTML('beforebegin', html);
+    } else {
+        buttonAddImageDetail.insertAdjacentHTML('beforebegin', html);
+    }
+
+    let cloneInput = '';
+    if (imageTarget == inputUploadImage) {
+        cloneInput = inputUploadImage.cloneNode(false);
+    } else {
+        cloneInput = inputUploadImageDetail.cloneNode(false);
+    }
+
+    //엘리먼트를 넣을떄는 insertAdjacentElement 써야함
+    let newInput = imageTarget.parentElement.parentElement.querySelector('.image-box form[temp=TRUE]')
+    newInput.insertAdjacentElement('beforeend', cloneInput);
+    newInput.setAttribute('temp', 'FALSE');
+                  
+    if (imageTarget == inputUploadImage) {
+        inputUploadImage.value = '';
+    } else {
+        inputUploadImageDetail.value = '';
+    }
+    
+    // 이미지 추가 될때마다 select option 늘리기
+    let imageSelectList = imageTarget.parentElement.parentElement.querySelectorAll('.image-box select');
+    imageSelectList.forEach(function(select) {
+        let optionCnt = select.length;
+        if (optionCnt == newImageBoxIndex) return;
+        select.insertAdjacentHTML('beforeend', '<option value="' + newImageBoxIndex + '">' + newImageBoxIndex + '</option>');
+    });
+
+    //이미지 제거
+    let imageList = imageTarget.parentElement.parentElement.querySelectorAll('.image-box .image');
+    if (imageList.length > 0) {
+        imageList[imageList.length-1].addEventListener('click', function() {
+            this.parentElement.remove();
+            resetImageBoxSelect(imageTarget);
+        });    
+    }
+    
+    //셀렉트 변경 이벤트 (이미지 순서 바꾸기)
+    imageSelectList.forEach(function(select) {
+        select.addEventListener('change', function() {
+            let targetIndex = parseInt(select.value);
+
+            let thisImageBox = select.parentElement;
+            let targetImageBox = imageTarget.parentElement.parentElement.querySelector('.image-wrapper .image-box:nth-child(' + (targetIndex + 1) + ')');
+
+            let thisCloneInput = thisImageBox.querySelector('form').querySelector('input').cloneNode(false);
+            let targetCloneInput = targetImageBox.querySelector('form').querySelector('input').cloneNode(false);
+
+            let thisImageUrl = getBackgroundImage(thisImageBox.getElementsByClassName("image")[0]);
+            let targetImageUrl = getBackgroundImage(targetImageBox.getElementsByClassName("image")[0]);
+
+            setBackgroundImage(thisImageBox.getElementsByClassName("image")[0], targetImageUrl);
+            setBackgroundImage(targetImageBox.getElementsByClassName("image")[0], thisImageUrl);
+
+
+            targetImageBox.querySelector('form').querySelector('input').remove();
+            targetImageBox.querySelector('form').insertAdjacentElement('beforeend', thisCloneInput);
+            thisImageBox.querySelector('form').querySelector('input').remove();
+            thisImageBox.querySelector('form').insertAdjacentElement('beforeend', targetCloneInput);
+
+            resetImageBoxSelect(imageTarget);
+
+        });
+    });
+}
+
 // select 재설정
-function resetImageBoxSelect() {
-    let selectList = document.querySelectorAll('.wrapper .form-box .image-wrapper .image-box select');
+function resetImageBoxSelect(imageTarget) {
+    let selectList = imageTarget.parentElement.parentElement.querySelectorAll('.image-box select');
     let totalImageBoxIndex = selectList.length;
 
     selectList.forEach(function(select, index) {
