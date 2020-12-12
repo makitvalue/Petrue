@@ -126,3 +126,4 @@ dist
 bin
 .jshintrc
 public/images/*
+upload/*
