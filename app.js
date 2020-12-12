@@ -6,6 +6,7 @@ var session = require('express-session');
 var logger = require('morgan');
 var mysql = require('mysql');
 var MySQLStore = require('express-mysql-session') (session);
+var moment = require('moment');
 
 var indexRouter = require('./routes/index');
 var adminRouter = require('./routes/admin');
@@ -61,6 +62,7 @@ global.o = {}; // 객체
 global.f = {}; // 함수
 global.c = {}; // 상수
 
+
 // mysql connection
 global.o.mysql = mysql.createConnection({
     host: process.env.MYSQL_HOST,
@@ -70,6 +72,16 @@ global.o.mysql = mysql.createConnection({
     database: process.env.MYSQL_DATABASE,
     dateStrings: 'date'
 });
+
+
+// random id
+global.f.generateRandomId = function() {
+    var rand = Math.floor(Math.random() * 9999) + '';
+    var pad = rand.length >= 4 ? rand : new Array(4 - rand.length + 1).join('0') + rand;
+    var random_id = moment().format("YYMMDDHHmmss") + pad;
+    return random_id;
+}
+
 
 module.exports = app;
 

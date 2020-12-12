@@ -5,8 +5,6 @@ var formidable = require('formidable');
 const AWS = require('aws-sdk');
 const fs  = require('fs');
 
-require('dotenv').config();
-
 const s3 = new AWS.S3({
     accessKeyId: process.env.S3_ACCESSKEYID,
     secretAccessKey: process.env.S3_SECRETKEY,
@@ -238,6 +236,68 @@ router.post('/webapi/delete/data', (req, res) => {
             return;
         }
         res.json({status: 'OK'});
+    });
+
+});
+
+
+router.post('/webapi/upload/image', (req, res) => {
+
+    let form = new formidable.IncomingForm();
+    form.encoding = 'utf-8';
+    form.uploadDir = 'upload/temp';
+    form.multiples = true;
+    form.keepExtensions = true;
+
+    form.parse(req, function(error, body, files) {
+        if (error) {
+            res.json({ status: 'ERR_UPLOAD' });
+            return;
+        }
+
+        let dataType = body.dataType;
+        let mode = body.mode; // THUMBNAIL, IMAGE
+        let dataId = body.dataId; // 데이터 아이디
+        let order = body.order; // IMAGE일 경우 순서
+        
+        let imageName = f.generateRandomId() + '.' + files.image.path.split('.')[1];
+        let imageFilePath = 'public/images/' + imageName;
+        let imagePath = '/images/' + imageName;
+
+        fs.rename(files.image.path, imageFilePath, function() {
+            let table = "t_" + dataType + "s";
+            let t = dataType[0];
+
+            if (mode == 'THUMBNAIL') {
+                // UPDATE data thumbnail
+                let query = "UPDATE t_" + table + "s SET " + t + "_thumb_path = ? WHERE " + t + "_id = ?";
+                let params = [imagePath, dataId];
+                o.mysql.query(query, params, function(error, result) {
+                    if (error) {
+                        console.log(error);
+                        res.json({ status: 'ERR_MYSQL' });
+                        return;
+                    }
+
+                    res.json({ status: 'OK', imagePath: imagePath });
+                });
+
+            } else if (mode == 'IMAGE') {
+                // INSERT images
+                let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order) VALUES (?, ?, ?, ?)";
+                let params = ['IMAGE', imagePath, dataId, order];
+
+                o.mysql.query(query, params, function(error, result) {
+                    if (error) {
+                        console.log(error);
+                        res.json({ status: 'ERR_MYSQL' });
+                        return;
+                    }
+
+                    res.json({ status: 'OK', imagePath: imagePath, order: order });
+                });
+            }
+        });
     });
 
 });
