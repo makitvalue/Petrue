@@ -7,10 +7,26 @@ const buttonAddImage = document.querySelector('.js-button-add-image');
 const inputUploadImage = document.querySelector('.js-input-upload-image');
 const buttonSaveData = document.querySelector('.js-button-save-data');
 const dataType = inputHiddenMenu.getAttribute('value').split('data_')[1].split('_add')[0];
+const inputPrice = document.querySelector('.js-input-price');
+const inputOrigin = document.querySelector('.js-input-origin');
+const inputManufacture = document.querySelector('.js-input-manufacture');
+const selectProductCategory = document.querySelector('.js-select-product-category');
+const inputPackingVolume = document.querySelector('.js-input-packing-volume');
+const inputRecommended = document.querySelector('.js-input-recommended');
+const inputSubName = document.querySelector('.js-input-sub-name');
 
 function initDataAdd() {
 
-    if (dataType == 'product') {
+    if (dataType != 'nutrient') {
+
+        if(dataType == 'product') {
+            let html = '';
+            for (let i = 0; i < categories.length; i++) {
+                html += '<option value=' + categories[i].categoryId + '>' + categories[i].categoryName + '</option>';
+            }
+            selectProductCategory.innerHTML = html;
+            console.log(selectProductCategory);
+        }
 
         //썸네일 이미지 업로드
         buttonUploadThumb.addEventListener('click', function() {
@@ -244,6 +260,13 @@ function initDataAdd() {
         let effect = '';
         let desc = '';
         let descOver = '';
+        let subName = '';
+        let category = '';
+        let price = '';
+        let origin = '';
+        let manufacture = '';
+        let packingVolume = '';
+        let recommended = ''; 
 
         let keyword_list = [];
 
@@ -255,11 +278,17 @@ function initDataAdd() {
 
         
         if (dataType == 'nutrient') { //영양소 데이터 저장
-            effect = document.querySelector('.js-select-effect').value;
-            desc = document.querySelector('.js-textarea-desc').value;
-            descOver = document.querySelector('.js-textarea-desc-over').value;
-        } else if (dataType) { //제품 데이터 저장
-            
+            effect = document.querySelector('.js-select-effect').value.trim();
+            desc = document.querySelector('.js-textarea-desc').value.trim();
+            descOver = document.querySelector('.js-textarea-desc-over').value.trim();
+        } else if (dataType == 'product') { //제품 데이터 저장
+            subName = inputSubName.value.trim();
+            category = selectProductCategory.value;
+            price = inputPrice.value.trim();
+            origin = inputOrigin.value.trim();
+            manufacture = inputManufacture.value.trim();
+            packingVolume = inputPackingVolume.value.trim();
+            recommended = inputRecommended.value.trim();
         }
 
         let dataList = {
@@ -268,10 +297,17 @@ function initDataAdd() {
             keyword: keyword,
             effect: effect,
             desc: desc,
-            descOver: descOver
+            descOver: descOver,
+            subName: subName,
+            category: category,
+            price: price,
+            origin: origin,
+            manufacture: manufacture,
+            packingVolume: packingVolume,
+            recommended: recommended
         };
 
-        fetch('/webapi/save/data', {
+        fetch('/admin/webapi/save/data', {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             headers: {
                 'Content-Type': 'application/json',
@@ -330,7 +366,7 @@ function getDataToAdd(dataType, keyword) {
     createSpinner();
     tbodyDataList.innerHTML = '';
     
-    fetch('/webapi/get/data?' + new URLSearchParams({
+    fetch('/admin/webapi/get/data?' + new URLSearchParams({
         dataType: dataType,
         keyword: keyword
     }))
@@ -410,7 +446,6 @@ function getDataToAdd(dataType, keyword) {
         }
 
         tbodyDataList.innerHTML = html;
-
         
         //테이블 tr 클릭 이벤트
         const trDataLists = document.querySelectorAll('.js-tr-data-list');
@@ -436,11 +471,9 @@ function getDataToAdd(dataType, keyword) {
                 
                 document.querySelector('.wrapper .form-box .relationship-wrapper button[data_type=' + dataType + ']').insertAdjacentHTML('beforebegin', html);
 
-
                 document.querySelector('.overlay[key=DIALOG_SEARCH]').remove();
                 document.querySelector('.js-div-dialog-data-search').remove();
                 body.classList.remove('overflow-hidden');
-
                                 
                 //추가된 연관 데이터 클릭 이벤트 (삭제)
                 let pListRelationship = document.querySelectorAll('.wrapper.add .form-box .relationship-wrapper p');

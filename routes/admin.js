@@ -149,9 +149,6 @@ router.get('/test', function(req, res, next) {
 // })
 
 
-
-
-
 /* GET home page. */
 router.get('/webapi/get/data', function(req, res, next) {
 
@@ -189,24 +186,47 @@ router.post('/webapi/save/data', (req, res) => {
     let effect = '';
     let desc = '';
     let descOver = '';
+    let subName = '';
+    let category = '';
+    let price = '';
+    let origin = '';
+    let manufacture = '';
+    let packingVolume = '';
+    let recommended = ''; 
     
+    let params = [];
+    let query = '';
+
     if (dataType == 'nutrient') {
         effect = req.body.effect;
         desc = req.body.desc;
         descOver = req.body.descOver;
 
-        let params = [name, keyword, effect, desc, descOver];
+        params = [name, keyword, effect, desc, descOver];
+        query = "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over) VALUES(?, ?, ?, ?, ?)";
 
-        let query = "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over) VALUES(?, ?, ?, ?, ?)";
-        o.mysql.query(query, params, (error, result) => {
-            if (error) {
-                console.log(error);
-                res.json({status: "ERR_DB_INSERT"});
-                return;
-            }
-            res.json({status: "OK"});
-        });
+    } else if (dataType == 'product') {
+        subName = req.body.subName;
+        category = req.body.category;
+        price = req.body.price;
+        origin = req.body.origin;
+        manufacture = req.body.manufacture;
+        packingVolume = req.body.packingVolume;
+        recommended = req.body.recommended; 
+
+        params = [subName, category, price, origin, manufacture, packingVolume, recommended];
+        query = "INSERT INTO t_products(p_name, keyword, p_price, p_origin, p_mabufacture, p_category1, p_packing_volume, p_recommended, p_subName) VALUE(?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
+
+    o.mysql.query(query, params, (error, result) => {
+        if (error) {
+            console.log(error);
+            res.json({status: "ERR_DB_INSERT"});
+            return;
+        }
+        res.json({status: "OK"});
+    });
+
 });
 
 
@@ -256,7 +276,7 @@ router.post('/webapi/upload/image', (req, res) => {
         }
 
         let dataType = body.dataType;
-        let mode = body.mode; // THUMBNAIL, IMAGE
+        let mode = body.mode; // THUMB, DATA_IMAGE, DATA_IMAGE_DESC
         let dataId = body.dataId; // 데이터 아이디
         let order = body.order; // IMAGE일 경우 순서
         
@@ -268,7 +288,7 @@ router.post('/webapi/upload/image', (req, res) => {
             let table = "t_" + dataType + "s";
             let t = dataType[0];
 
-            if (mode == 'THUMBNAIL') {
+            if (mode == 'THUMB') {
                 // UPDATE data thumbnail
                 let query = "UPDATE t_" + table + "s SET " + t + "_thumb_path = ? WHERE " + t + "_id = ?";
                 let params = [imagePath, dataId];
@@ -282,7 +302,7 @@ router.post('/webapi/upload/image', (req, res) => {
                     res.json({ status: 'OK', imagePath: imagePath });
                 });
 
-            } else if (mode == 'IMAGE') {
+            } else if (mode == 'DATA_IMAGE' || mode == 'DATA_IMAGE_DESC') {
                 // INSERT images
                 let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order) VALUES (?, ?, ?, ?)";
                 let params = ['IMAGE', imagePath, dataId, order];

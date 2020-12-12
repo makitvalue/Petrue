@@ -13,7 +13,7 @@ function getData(keyword) {
     createSpinner();
     tbodyDataList.innerHTML = '';
     
-    fetch('/webapi/get/data?' + new URLSearchParams({
+    fetch('/admin/webapi/get/data?' + new URLSearchParams({
         dataType: dataType,
         keyword: keyword
     }))
@@ -161,7 +161,7 @@ function deleteData() {
         ids: deleteIds
     };
     
-    fetch('/webapi/delete/data', {
+    fetch('/admin/webapi/delete/data', {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         headers: {
             'Content-Type': 'application/json',
