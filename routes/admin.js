@@ -4,6 +4,7 @@ var formidable = require('formidable');
 
 const AWS = require('aws-sdk');
 const fs  = require('fs');
+const { DH_UNABLE_TO_CHECK_GENERATOR } = require('constants');
 
 const s3 = new AWS.S3({
     accessKeyId: process.env.S3_ACCESSKEYID,
@@ -173,7 +174,7 @@ router.get('/webapi/get/data', function(req, res, next) {
             return;
         }
 
-        res.json({ status: 'OK', result: { data_list: result } });
+        res.json({ status: 'OK', result: { dataList: result } });
     });
 });
 
@@ -183,6 +184,7 @@ router.post('/webapi/save/data', (req, res) => {
     let dataType = req.body.dataType;
     let name = req.body.name;
     let keyword = req.body.keyword;
+    let nutrients = req.body.nutrients;
     let effect = '';
     let desc = '';
     let descOver = '';
@@ -193,6 +195,7 @@ router.post('/webapi/save/data', (req, res) => {
     let manufacturer = '';
     let packingVolume = '';
     let recommended = ''; 
+
     
     let params = [];
     let query = '';
@@ -201,7 +204,6 @@ router.post('/webapi/save/data', (req, res) => {
         effect = req.body.effect;
         desc = req.body.desc;
         descOver = req.body.descOver;
-
         params = [name, keyword, effect, desc, descOver];
         query = "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over) VALUES(?, ?, ?, ?, ?)";
 
@@ -224,7 +226,48 @@ router.post('/webapi/save/data', (req, res) => {
             res.json({status: "ERR_DB_INSERT"});
             return;
         }
-        res.json({status: "OK", p_id: result.insertId});
+        let pId = result.insertId;
+        
+        if (nutrients.length > 0) {
+            let table = "t_maps_" + dataType + "_nutrient";
+            let t = "";
+
+            if (dataType == 'product') {
+                t = "mpn_";
+            } else if (dataType == 'food') {
+                t = "mfn_";
+            } else if (dataType == 'disease') {
+                t = "mdn_";
+            } else if (dataType == 'symtom') {
+                t = "msn_";
+            }
+
+            let nutrientList = nutrients.split('|');
+            let query = 'INSERT INTO ' + table + '(' + t + dataType[0] + '_id, ' + t + 'n_id) VALUES';
+
+            nutrientList.forEach((nutrient, index) => {
+
+                if (index != 0) {
+                    query += ', (' + pId + ', ' + nutrient + ')';                    
+                } else {
+                    query += ' (' + pId + ', ' + nutrient + ')';
+                }
+            });
+
+            o.mysql.query(query, (error, result) => {
+                if (error) {
+                    console.log(error);
+                    res.json({status: "ERR_MYSQL"});
+                    return;
+                }
+
+                res.json({status: "OK", pId: pId});
+            });
+
+        } else {
+            res.json({status: "OK", pId: pId});
+        }
+
     });
 
 });

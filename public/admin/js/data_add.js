@@ -18,7 +18,7 @@ const inputRecommended = document.querySelector('.js-input-recommended');
 const inputSubName = document.querySelector('.js-input-sub-name');
 const divImageWrapper = document.querySelector('.js-div-image-wrapper');
 const divDetailImageWrapper = document.querySelector('.js-div-detail-image-wrapper');
-
+const divRelationshipWrapperNutrient = document.querySelector('.js-div-relationship-wrapper-nutrient');
 
 
 function initDataAdd() {
@@ -104,6 +104,7 @@ function initDataAdd() {
                                     html += '<th>이름</th>';
                                     html += '<th>키워드</th>';
                                     if (dataType == 'food') html += '<th>섭취가능</th>';
+                                    else if (dataType == 'nutrient') html += '<th>효과</th>';
                                     html += '<th>생성일</th>';
                                 html += '</tr>';
                             html += '</thead>';
@@ -192,14 +193,7 @@ function initDataAdd() {
     buttonSaveData.addEventListener('click', function() {
         let dataType = this.getAttribute('data_type');
         let name = document.querySelector('.js-input-name').value.trim();
-        // let desc1 = document.querySelector('.js-textarea-desc1').value.trim();
-        // let desc2 = document.querySelector('.js-textarea-desc2').value.trim();
-        let keyword = '';
-        // let disease_list = [];
-        // let food_list = [];
-        // let symptom_list = [];
-        // let product_list = [];
-        // let tag_list = [];
+        let keywords = '';
         let effect = '';
         let desc = '';
         let descOver = '';
@@ -210,16 +204,25 @@ function initDataAdd() {
         let manufacturer = '';
         let packingVolume = '';
         let recommended = ''; 
+        let nutrients = '';
 
-        let keyword_list = [];
+        let keywordList = [];
+        let nutrientList = [];
 
         //키워드 배열에 넣기
         document.querySelectorAll('.wrapper .form-box .keyword-wrapper p').forEach(function(p) {
-            keyword_list.push(p.innerText);
+            keywordList.push(p.innerText);
         });
-        keyword = keyword_list.join('|');
+        keywords = keywordList.join('|');
 
-        
+        if (divRelationshipWrapperNutrient) {
+            divRelationshipWrapperNutrient.querySelectorAll('p').forEach(function(p) {
+                nutrientList.push(p.getAttribute('id'));
+            });
+            nutrients = nutrientList.join('|');
+            
+        }
+
         if (dataType == 'nutrient') { //영양소 데이터 저장
             effect = document.querySelector('.js-select-effect').value.trim();
             desc = document.querySelector('.js-textarea-desc').value.trim();
@@ -234,10 +237,11 @@ function initDataAdd() {
             recommended = inputRecommended.value.trim();
         }
 
+
         let dataList = {
             dataType: dataType,
             name: name,
-            keyword: keyword,
+            keyword: keywords,
             effect: effect,
             desc: desc,
             descOver: descOver,
@@ -247,7 +251,8 @@ function initDataAdd() {
             origin: origin,
             manufacturer: manufacturer,
             packingVolume: packingVolume,
-            recommended: recommended
+            recommended: recommended,
+            nutrients: nutrients
         };
 
         createSpinner();
@@ -264,12 +269,18 @@ function initDataAdd() {
                 alert("저장 에러 발생");
                 return;
             }
-            let p_id = response.p_id;
+            let pId = response.pId;
+
+            if (dataType == 'nutrient') {
+                alert('저장 완료');
+                location.href = '/admin/data/nutrient';
+                return;
+            }
 
             // thumb
             let form = inputUploadThumb.parentElement;
             let formData = new FormData(form);
-            formData.append('dataId', p_id);
+            formData.append('dataId', pId);
             formData.append('mode', 'THUMB');
             formData.append('dataType', dataType);
 
@@ -303,7 +314,7 @@ function initDataAdd() {
                 imageFormList.forEach(function(imageForm, index) {
                     
                     formData = new FormData(imageForm);
-                    formData.append('dataId', p_id);
+                    formData.append('dataId', pId);
                     formData.append('mode', 'DATA_IMAGE');
                     formData.append('dataType', dataType);
                     formData.append('order', index+1);
@@ -334,7 +345,7 @@ function initDataAdd() {
 
                 imageDetailFormList.forEach(function(imageForm, index) {
                     formData = new FormData(imageForm);
-                    formData.append('dataId', p_id);
+                    formData.append('dataId', pId);
                     formData.append('mode', 'DATA_IMAGE_DETAIL');
                     formData.append('dataType', dataType);
                     formData.append('order', index+1);
@@ -362,23 +373,8 @@ function initDataAdd() {
                     });
                 });
 
-                
-
             });
 
-            
-            let responseCnt = 0;
-
-            // image
-            // .then(function(response) { 
-                    // if (imageList.length == responseCnt) {
-                    //     return;
-                    // }
-
-                    // responseCnt++;
-            // })
-
-            // image-detail
         });
 
 
@@ -397,19 +393,7 @@ function initDataAdd() {
         // });
         // document.querySelectorAll('.wrapper .form-box[data_type=tag] .relationship-wrapper p').forEach(function(p) {
         //     tag_list.push(p.getAttribute('id'));
-        // });
-
-
-        // console.log(dataType);
-        // console.log(name);
-        // console.log(desc1);
-        // console.log(desc2);
-        // console.log(keyword);
-        // console.log(disease_list);
-        // console.log(food_list);
-        // console.log(symptom_list);
-        // console.log(product_list);
-        // console.log(tag_list);        
+        // });    
 
     });
 
@@ -439,7 +423,7 @@ function getDataToAdd(dataType, keyword) {
         }
 
         let html = '';
-        let dataList = response.result.data_list;
+        let dataList = response.result.dataList;
 
         for (let i = 0; i < dataList.length; i++) {
             let data = dataList[i];
@@ -495,8 +479,6 @@ function getDataToAdd(dataType, keyword) {
                     html += '<td class="name">' + data.n_name + '</td>';
                     html += '<td>' + data.n_keyword + '</td>';
                     html += '<td>' + data.n_effect + '</td>';
-                    html += '<td>' + data.n_desc + '</td>';
-                    html += '<td>' + data.n_desc_over + '</td>';
                     html += '<td>' + data.n_created_date.split(' ')[0] + '</td>';
                 html += '</tr>';
             }
