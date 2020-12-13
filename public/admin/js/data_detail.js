@@ -26,7 +26,6 @@ const selectEffect = document.querySelector('.js-select-effect');
 
 function initDataDetail() {
     setDataToDetail(dataType, inputHiddenDataId.value);
-    console.log(dataType);
 
     if (dataType != 'nutrient') {
 
@@ -67,6 +66,22 @@ function initDataDetail() {
             }, function() {
                 removeBackGroundImage(divThumbImage);
             });
+
+            let thumbForm = new FormData(divThumbImage.parentElement.querySelector('form'));
+            fetch('/admin/webapi/upload/image/from/modify', {
+                method: 'POST',
+                body: thumbForm
+            })
+            .then(data => data.json())
+            .then((response) => {
+                if (response.status != 'OK') {
+                    alert("썸네일 저장 에러");
+                    return;
+                }
+                setBackgroundImage(divThumbImage, response.imagePath);
+                
+            });
+
         });
 
         //이미지 추가
@@ -158,7 +173,6 @@ function initDataDetail() {
         });
     }
 
-
     //공통 ADD 함수들
     //키워드 추가
     buttonAddKeyword.addEventListener('click', function() {
@@ -197,6 +211,7 @@ function initDataDetail() {
 
     //저장버튼 클릭 이벤트
     buttonModifyData.addEventListener('click', function() {
+
         let dataType = this.getAttribute('data_type');
         let name = inputDetailTitle.value.trim();
         let keywords = '';
@@ -211,9 +226,12 @@ function initDataDetail() {
         let packingVolume = '';
         let recommended = ''; 
         let nutrients = '';
+        let thumbnail = '';
 
         let keywordList = [];
         let nutrientList = [];
+        let imageUrlList = [];
+        let detailImageUrlList = [];
 
         //키워드 배열에 넣기
         document.querySelectorAll('.wrapper .form-box .keyword-wrapper p').forEach(function(p) {
@@ -233,6 +251,44 @@ function initDataDetail() {
             effect = document.querySelector('.js-select-effect').value.trim();
             desc = document.querySelector('.js-textarea-desc').value.trim();
             descOver = document.querySelector('.js-textarea-desc-over').value.trim();
+
+            let dataList = {
+                mode: 'MODIFY', // EDIT
+                dataType: dataType,
+                name: name,
+                keyword: keywords,
+                effect: effect,
+                desc: desc,
+                descOver: descOver,
+                subName: subName,
+                category: category,
+                price: price,
+                origin: origin,
+                manufacturer: manufacturer,
+                packingVolume: packingVolume,
+                recommended: recommended,
+                nutrients: nutrients,
+                dataId: inputHiddenDataId.value
+            };
+    
+            createSpinner();
+            fetch('/admin/webapi/save/data', {
+                method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataList), // body data type must match "Content-Type" header
+            })
+            .then(data => data.json())
+            .then(function(response) {
+                if (response.status != 'OK') {
+                    alert("저장 에러 발생");
+                    return;
+                }
+                location.href = '/admin/data/' + dataType;
+                return;
+    
+            });
         } else if (dataType == 'product') { //제품 데이터 저장
             subName = inputSubName.value.trim();
             category = selectProductCategory.value;
@@ -241,51 +297,262 @@ function initDataDetail() {
             manufacturer = inputManufacturer.value.trim();
             packingVolume = inputPackingVolume.value.trim();
             recommended = inputRecommended.value.trim();
+
+            let thumbnail = getBackgroundImage(divThumbImage);
+
+            let allimageList = divImageWrapper.querySelectorAll('.image-box form input');
+            let newImageList = [];
+            allimageList.forEach(function(image) {
+                if (image.value != '') newImageList.push(image); 
+            });
+
+            let allDetailImageList = divDetailImageWrapper.querySelectorAll('.image-box form input');
+            let newDetailImageList = [];
+            allDetailImageList.forEach(function(image) {
+                if (image.value != '') newDetailImageList.push(image); 
+            });
+
+            let newImageUrlList = [];
+            let NewDetailImageUrlList = [];
+
+            let newImageFormList = [];
+            newImageList.forEach(function(image) {
+                newImageFormList.push(new FormData(image.parentElement));
+            });
+            
+            let newDetailImageFormList = [];
+            newDetailImageList.forEach(function(image) {
+                newDetailImageFormList.push(new FormData(image.parentElement));
+            });
+
+            let imageCnt = newImageFormList.length + newDetailImageFormList.length;
+            let responseCnt = 0;
+
+            if (newImageFormList.length > 0 || newDetailImageFormList.length > 0) {
+
+                newImageFormList.forEach(function(form) {
+                    fetch('/admin/webapi/upload/image/from/modify', {
+                        method: 'POST',
+                        body: form
+                    })
+                    .then(data => data.json())
+                    .then((response) => {
+                        if (response.status != 'OK') {
+                            alert("이미지 저장 에러!");
+                            removeSpinner();
+                            return;
+                        } 
+    
+                        responseCnt++;
+                        newImageUrlList.push(response.imagePath);
+
+                        if (imageCnt == responseCnt) {
+                            //끝나면 할거
+                            for (let i = 0; i < newImageList.length; i++) {
+                                let targetImage = newImageList[i].parentElement.parentElement.querySelector('.image');
+                                setBackgroundImage(targetImage, newImageUrlList[i]);
+                            
+                            }
+                            allimageList.forEach(function(image) {
+                                let url = getBackgroundImage(image.parentElement.parentElement.querySelector('.image'));
+                                imageUrlList.push(url);
+                            });
+
+                            for (let i = 0; i < newDetailImageList.length; i++) {
+                                let targetImage = newDetailImageList[i].parentElement.parentElement.querySelector('.image');
+                                setBackgroundImage(targetImage, NewDetailImageUrlList[i]);
+                            }
+
+                            allDetailImageList.forEach(function(image) {
+                                let url = getBackgroundImage(image.parentElement.parentElement.querySelector('.image'));
+                                detailImageUrlList.push(url);
+                            });
+
+                            imageJoinUrls = imageUrlList.join('|');
+                            detailImageJoinUrls = detailImageUrlList.join('|'); 
+                    
+                            let dataList = {
+                                mode: 'MODIFY', // EDIT
+                                dataType: dataType,
+                                name: name,
+                                keyword: keywords,
+                                effect: effect,
+                                desc: desc,
+                                descOver: descOver,
+                                subName: subName,
+                                category: category,
+                                price: price,
+                                origin: origin,
+                                manufacturer: manufacturer,
+                                packingVolume: packingVolume,
+                                recommended: recommended,
+                                nutrients: nutrients,
+                                dataId: inputHiddenDataId.value,
+                                images: imageJoinUrls,
+                                imagesDetail: detailImageJoinUrls,
+                                thumb: thumbnail
+                            };
+                    
+                            createSpinner();
+                            fetch('/admin/webapi/save/data', {
+                                method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(dataList), // body data type must match "Content-Type" header
+                            })
+                            .then(data => data.json())
+                            .then(function(response) {
+                                if (response.status != 'OK') {
+                                    alert("저장 에러 발생");
+                                    return;
+                                }
+                    
+
+                                location.href = '/admin/data/' + dataType;
+                                return;
+                    
+                            });
+                              
+                        }
+
+                    });
+                });
+    
+                newDetailImageFormList.forEach(function(form) {
+                    fetch('/admin/webapi/upload/image/from/modify', {
+                        method: 'POST',
+                        body: form
+                    })
+                    .then(data => data.json())
+                    .then((response) => {
+                        if (response.status != 'OK') {
+                            alert("이미지 저장 에러!");
+                            removeSpinner();
+                            return;
+                        } 
+    
+                        responseCnt++;
+                        NewDetailImageUrlList.push(response.imagePath);
+    
+                        if (imageCnt == responseCnt) {
+                            //끝나면 할거
+                            for (let i = 0; i < newImageList.length; i++) {
+                                let targetImage = newImageList[i].parentElement.parentElement.querySelector('.image');
+                                setBackgroundImage(targetImage, newImageUrlList[i]);
+                            
+                            }
+                            allimageList.forEach(function(image) {
+                                let url = getBackgroundImage(image.parentElement.parentElement.querySelector('.image'));
+                                imageUrlList.push(url);
+                            });
+
+                            for (let i = 0; i < newDetailImageList.length; i++) {
+                                let targetImage = newDetailImageList[i].parentElement.parentElement.querySelector('.image');
+                                setBackgroundImage(targetImage, NewDetailImageUrlList[i]);
+                            }
+
+                            allDetailImageList.forEach(function(image) {
+                                let url = getBackgroundImage(image.parentElement.parentElement.querySelector('.image'));
+                                detailImageUrlList.push(url);
+                            });
+
+
+                            imageJoinUrls = imageUrlList.join('|');
+                            detailImageJoinUrls = detailImageUrlList.join('|'); 
+                    
+                            let dataList = {
+                                mode: 'MODIFY', // EDIT
+                                dataType: dataType,
+                                name: name,
+                                keyword: keywords,
+                                effect: effect,
+                                desc: desc,
+                                descOver: descOver,
+                                subName: subName,
+                                category: category,
+                                price: price,
+                                origin: origin,
+                                manufacturer: manufacturer,
+                                packingVolume: packingVolume,
+                                recommended: recommended,
+                                nutrients: nutrients,
+                                dataId: inputHiddenDataId.value,
+                                images: imageJoinUrls,
+                                imagesDetail: detailImageJoinUrls,
+                                thumb: thumbnail
+                            };
+                    
+                            createSpinner();
+                            fetch('/admin/webapi/save/data', {
+                                method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(dataList), // body data type must match "Content-Type" header
+                            })
+                            .then(data => data.json())
+                            .then(function(response) {
+                                if (response.status != 'OK') {
+                                    alert("저장 에러 발생");
+                                    return;
+                                }
+                                location.href = '/admin/data/' + dataType;
+                                return;
+                    
+                            });
+
+
+                        }
+                    });
+                });
+
+            } else {
+        
+                let dataList = {
+                    mode: 'MODIFY', // EDIT
+                    dataType: dataType,
+                    name: name,
+                    keyword: keywords,
+                    effect: effect,
+                    desc: desc,
+                    descOver: descOver,
+                    subName: subName,
+                    category: category,
+                    price: price,
+                    origin: origin,
+                    manufacturer: manufacturer,
+                    packingVolume: packingVolume,
+                    recommended: recommended,
+                    nutrients: nutrients,
+                    dataId: inputHiddenDataId.value,
+                    images: '',
+                    imagesDetail: '',
+                    thumb: thumbnail
+                };
+        
+                createSpinner();
+                fetch('/admin/webapi/save/data', {
+                    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataList), // body data type must match "Content-Type" header
+                })
+                .then(data => data.json())
+                .then(function(response) {
+                    if (response.status != 'OK') {
+                        alert("저장 에러 발생");
+                        return;
+                    }
+                    location.href = '/admin/data/' + dataType;
+                    return;
+        
+                });
+            }
+
         }
 
-
-        let dataList = {
-            mode: 'MODIFY', // EDIT
-            dataType: dataType,
-            name: name,
-            keyword: keywords,
-            effect: effect,
-            desc: desc,
-            descOver: descOver,
-            subName: subName,
-            category: category,
-            price: price,
-            origin: origin,
-            manufacturer: manufacturer,
-            packingVolume: packingVolume,
-            recommended: recommended,
-            nutrients: nutrients,
-            dataId: inputHiddenDataId.value
-        };
-
-        createSpinner();
-        fetch('/admin/webapi/save/data', {
-            method: 'POST', // *GET, POST, PUT, DELETE, etc.
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dataList), // body data type must match "Content-Type" header
-        })
-        .then(data => data.json())
-        .then(function(response) {
-            if (response.status != 'OK') {
-                alert("저장 에러 발생");
-                return;
-            }
-            let pId = response.pId;
-
-            if (dataType == 'nutrient') {
-                alert('저장 완료');
-                location.href = '/admin/data/nutrient';
-                return;
-            }
-
-        });
 
     });
 
@@ -315,7 +582,10 @@ function setDataToDetail(dataType, dataId) {
         let keywordList = [] ;  
         let divKeywordWrapper = buttonAddKeyword.parentElement;
 
+        console.log(data);
+    
         if (dataType == 'nutrient') {
+            //영양소
             if (data.n_keyword != '') keywordList = data.n_keyword.split('|');
 
             inputDetailTitle.value = data.n_name;
@@ -329,7 +599,171 @@ function setDataToDetail(dataType, dataId) {
 
             document.querySelector('.js-textarea-desc').innerText = data.n_desc;
             document.querySelector('.js-textarea-desc-over').innerText = data.n_desc_over;
+        } else if (dataType == 'product') {
+            //제품
+            if (data.p_keyword != '') keywordList = data.p_keyword.split('|');
+            let imageList = response.result.imageList;
+            let DataImages = [];
+            let DataDetailImages = [];
+            let nutrientList = [];           
 
+            imageList.forEach(function(image) {
+                if (image.i_type == 'DATA_IMAGE') DataImages.push(image);
+                if (image.i_type == 'DATA_IMAGE_DETAIL') DataDetailImages.push(image);
+            });
+            
+            //그냥 이미지
+            DataImages.forEach(function(image) {
+                let html = '';
+                html += '<div class="image-box">';
+                    html += '<select class="default">';
+                        for (let i = 0; i < DataImages.length; i++) {
+                            if (i+1 == image.i_order) {
+                                html += '<option value="' + (i + 1) + '" selected>' + (i + 1) + '</option>';
+                            } else {
+                                html += '<option value="' + (i + 1) + '">' + (i + 1) + '</option>';
+                            }
+                        }
+                    html += '</select>';
+                    html += '<form method="post" enctype="multipart/form-data" temp="FALSE">';
+                        html += '<input name="image" type="file" accept="image/jpeg,image/png">';
+                    html += '</form>';
+                    html += '<div class="image" style="background-image: url(' + image.i_path + ')"></div>';
+                html += '</div>';
+
+                buttonAddImage.insertAdjacentHTML('beforebegin', html);
+                
+                let imageSelectList = divImageWrapper.querySelectorAll('.image-box select');
+
+                //이미지 제거
+                let imageList = divImageWrapper.querySelectorAll('.image-box .image');
+                if (imageList.length > 0) {
+                    imageList[imageList.length-1].addEventListener('click', function() {
+                        this.parentElement.remove();
+                        resetImageBoxSelect(inputUploadImage);
+                    });    
+                }
+
+                //select 변경 리스너
+                imageSelectList.forEach(function(select) {
+                    select.addEventListener('change', function() {
+                        let targetIndex = parseInt(select.value);
+
+                        let thisImageBox = select.parentElement;
+                        let targetImageBox = divImageWrapper.querySelector('.image-box:nth-child(' + (targetIndex + 1) + ')');
+
+
+                        let thisCloneInput = thisImageBox.querySelector('form').querySelector('input').cloneNode(false);
+                        let targetCloneInput = targetImageBox.querySelector('form').querySelector('input').cloneNode(false);
+            
+                        let thisImageUrl = getBackgroundImage(thisImageBox.getElementsByClassName("image")[0]);
+                        let targetImageUrl = getBackgroundImage(targetImageBox.getElementsByClassName("image")[0]);
+            
+                        setBackgroundImage(thisImageBox.getElementsByClassName("image")[0], targetImageUrl);
+                        setBackgroundImage(targetImageBox.getElementsByClassName("image")[0], thisImageUrl);
+            
+            
+                        targetImageBox.querySelector('form').querySelector('input').remove();
+                        targetImageBox.querySelector('form').insertAdjacentElement('beforeend', thisCloneInput);
+                        thisImageBox.querySelector('form').querySelector('input').remove();
+                        thisImageBox.querySelector('form').insertAdjacentElement('beforeend', targetCloneInput);
+            
+                        resetImageBoxSelect(inputUploadImage);
+            
+                    });
+                });
+
+
+            });
+
+            //상세이미지
+            DataDetailImages.forEach(function(image) {
+                let html = '';
+                html += '<div class="image-box">';
+                    html += '<select class="default">';
+                        for (let i = 0; i < DataDetailImages.length; i++) {
+                            if (i+1 == image.i_order) {
+                                html += '<option value="' + (i + 1) + '" selected>' + (i + 1) + '</option>';
+                            } else {
+                                html += '<option value="' + (i + 1) + '">' + (i + 1) + '</option>';
+                            }
+                        }
+                    html += '</select>';
+                    html += '<form method="post" enctype="multipart/form-data" temp="FALSE">';
+                        html += '<input name="image" type="file" accept="image/jpeg,image/png">';
+                    html += '</form>';
+                    html += '<div class="image" style="background-image: url(' + image.i_path + ')"></div>';
+                html += '</div>';
+
+                buttonAddImageDetail.insertAdjacentHTML('beforebegin', html);
+                
+                let imageSelectList = divDetailImageWrapper.querySelectorAll('.image-box select');
+
+                //이미지 제거
+                let imageList = divDetailImageWrapper.querySelectorAll('.image-box .image');
+                if (imageList.length > 0) {
+                    imageList[imageList.length-1].addEventListener('click', function() {
+                        this.parentElement.remove();
+                        resetImageBoxSelect(inputUploadImageDetail);
+                    });    
+                }
+
+                imageSelectList.forEach(function(select) {
+                    select.addEventListener('change', function() {
+                        let targetIndex = parseInt(select.value);
+
+                        let thisImageBox = select.parentElement;
+                        let targetImageBox = divDetailImageWrapper.querySelector('.image-box:nth-child(' + (targetIndex + 1) + ')');
+
+
+                        let thisCloneInput = thisImageBox.querySelector('form').querySelector('input').cloneNode(false);
+                        let targetCloneInput = targetImageBox.querySelector('form').querySelector('input').cloneNode(false);
+            
+                        let thisImageUrl = getBackgroundImage(thisImageBox.getElementsByClassName("image")[0]);
+                        let targetImageUrl = getBackgroundImage(targetImageBox.getElementsByClassName("image")[0]);
+            
+                        setBackgroundImage(thisImageBox.getElementsByClassName("image")[0], targetImageUrl);
+                        setBackgroundImage(targetImageBox.getElementsByClassName("image")[0], thisImageUrl);
+            
+            
+                        targetImageBox.querySelector('form').querySelector('input').remove();
+                        targetImageBox.querySelector('form').insertAdjacentElement('beforeend', thisCloneInput);
+                        thisImageBox.querySelector('form').querySelector('input').remove();
+                        thisImageBox.querySelector('form').insertAdjacentElement('beforeend', targetCloneInput);
+            
+                        resetImageBoxSelect(inputUploadImageDetail);
+            
+                    });
+                });
+
+
+            });
+
+            //연관 영양소
+            nutrientList = response.result.nutrientList;
+            console.log(nutrientList);
+            nutrientList.forEach(function(nutrient) {
+                let html = '<p id=' + nutrient.mpn_n_id + '>' + nutrient.n_name + '</p>'
+                divRelationshipWrapperNutrient.querySelector('button').insertAdjacentHTML('beforebegin', html);
+                
+                let pListRelationship = document.querySelectorAll('.wrapper.detail .form-box .relationship-wrapper p');
+                pListRelationship.forEach(function(pRelationship) {
+                    pRelationship.addEventListener('click', function() {
+                        this.remove();
+                    });
+                });
+            });         
+    
+            if (data.p_keyword != '') keywordList = data.p_keyword.split('|');
+            setBackgroundImage(divThumbImage, data.p_thumb_path);
+            inputDetailTitle.value = data.p_name;
+            inputSubName.value = data.p_sub_name;
+            selectProductCategory.value = data.p_category;
+            inputPrice.value = data.p_price;
+            inputOrigin.value = data.p_origin;
+            inputManufacturer.value = data.p_manufacturer;
+            inputPackingVolume.value = data.p_packing_volume; 
+            inputRecommended.value = data.p_recommended;
         }
 
         //키워드 처리
@@ -441,6 +875,7 @@ function getDataToDetail(dataType, keyword) {
 
                 let isDuplicated = false;
 
+                //연관데이터 중복검사
                 document.querySelectorAll('.wrapper .form-box[data_type=' + dataType + '] .relationship-wrapper p').forEach(function(p) {
                     if (p.getAttribute('id') == id) {
                         alert('이미 등록된 ' + convertDataTypeToString(dataType) + '입니다.');
