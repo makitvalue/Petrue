@@ -6,6 +6,7 @@ const buttonSelectedRemove = document.querySelector('.js-button-selected-remove'
 const buttonBottomMenuDelete = document.querySelector('.js-button-bottom-menu-delete');
 const buttonSelectAll = document.querySelector('.js-button-select-all');
 const buttonAddTag = document.querySelector('.js-button-add-tag');
+const buttonBottomMenuDetail = document.querySelector('.js-button-bottom-menu-detail');
 
 
 //목록들 데이터 가져오기
@@ -145,6 +146,7 @@ function controlDataBottomMenu() {
     }
 }
 
+//데이터 삭제
 function deleteData() {
     let selectedTr = document.querySelectorAll('table tbody tr.selected');
     if(buttonSelectedRemove.classList.contains('disabled') || selectedTr.length === 0 ) {
@@ -222,6 +224,19 @@ function initData() {
     buttonSelectedRemove.addEventListener('click', deleteData);
     buttonBottomMenuDelete.addEventListener('click', deleteData);
 
+    //자세히보기 버튼 클릭(In bottomMenu)
+    buttonBottomMenuDetail.addEventListener('click', function() {
+        let selectedTrs = document.querySelectorAll('table tbody tr.selected');
+        console.log("clicked");
+        if (selectedTrs.length != 1) {
+            return;
+        } else {
+            let selectedTr = document.querySelector('table tbody tr.selected');
+            let dataId = selectedTr.getAttribute('id');
+            location.href = "/admin/data/" + dataType + "/detail/" + dataId;
+        }
+
+    });
     
     //데이터관리 > 태그 일때 "태그 데이터 추가" 버튼 클릭 이벤트
     if (dataType == 'tag') {
@@ -312,5 +327,7 @@ function initData() {
 
         });
     }
+
+
 }
 initData();

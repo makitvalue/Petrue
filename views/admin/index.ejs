@@ -22,6 +22,8 @@
         <link rel="stylesheet" type="text/css" href="/admin/css/data.css" />
     <% } else if (menu == 'data_disease_add' || menu == 'data_product_add' || menu == 'data_symptom_add' || menu == 'data_tag_add' || menu == 'data_food_add' || menu == 'data_nutrient_add') { %>
         <link rel="stylesheet" type="text/css" href="/admin/css/data_add.css" />
+    <% } else if (menu == 'data_disease_detail' || menu == 'data_product_detail' || menu == 'data_symptom_detail' || menu == 'data_tag_detail' || menu == 'data_food_detail' || menu == 'data_nutrient_detail') { %>
+        <link rel="stylesheet" type="text/css" href="/admin/css/data_detail.css" />
     <% } %>
 
     
@@ -62,26 +64,36 @@
             <% include ./data/nutrient %>
         <% } else if (menu == 'data_nutrient_add') { %>
             <% include ./data/nutrient_add %>
+        <% } else if (menu == 'data_nutrient_detail') { %>
+            <% include ./data/nutrient_detail %>
 
         <% } else if (menu == 'data_disease') { %>
             <% include ./data/disease %>
         <% } else if (menu == 'data_disease_add') { %>
             <% include ./data/disease_add %>
+        <% } else if (menu == 'data_disease_detail') { %>
+            <% include ./data/disease_detail %>
 
         <% } else if (menu == 'data_food') { %>
             <% include ./data/food %>
         <% } else if (menu == 'data_food_add') { %>
             <% include ./data/food_add %>
+        <% } else if (menu == 'data_food_detail') { %>
+            <% include ./data/food_detail %>
 
         <% } else if (menu == 'data_symptom') { %>
             <% include ./data/symptom %>
         <% } else if (menu == 'data_symptom_add') { %>
             <% include ./data/symptom_add %>
+        <% } else if (menu == 'data_symptom_detail') { %>
+            <% include ./data/symptom_detail %>
 
         <% } else if (menu == 'data_product') { %>
             <% include ./data/product %>
         <% } else if (menu == 'data_product_add') { %>
             <% include ./data/product_add %>
+        <% } else if (menu == 'data_product_detail') { %>
+            <% include ./data/product_detail %>
 
         <% } else if (menu == 'data_tag') { %>
             <% include ./data/tag %>
@@ -92,9 +104,8 @@
 
         <nav class="js-nav-data-bottom-menu data-bottom-menu">
             <div class="wrapper">
-                <button class="default">자세히</button>
+                <button class="js-button-bottom-menu-detail default">자세히</button>
                 <button class="js-button-bottom-menu-delete default">삭제</button>
-                <button class="default">수정</button>
                 <button class="default">연관 데이터 보기</button>
             </div>
         </nav>
@@ -115,6 +126,8 @@
         <script src="/admin/js/data.js"></script>
     <% } else if (menu == 'data_disease_add' || menu == 'data_product_add' || menu == 'data_symptom_add' || menu == 'data_tag_add' || menu == 'data_food_add' || menu == 'data_nutrient_add') { %>
         <script src="/admin/js/data_add.js"></script>
+    <% } else if (menu == 'data_disease_detail' || menu == 'data_product_detail' || menu == 'data_symptom_detail' || menu == 'data_tag_detail' || menu == 'data_food_detail' || menu == 'data_nutrient_detail') { %>
+        <script src="/admin/js/data_detail.js"></script>
     <% } %>
 
 

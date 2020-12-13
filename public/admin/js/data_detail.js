@@ -1,3 +1,4 @@
+const inputDetailTitle = document.querySelector('.js-input-detail-title');
 const buttonUploadThumb = document.querySelector('.js-button-upload-thumb');
 const inputUploadThumb =  document.querySelector('.js-input-upload-thumb');
 const divThumbImage =  document.querySelector('.js-div-thumb-image');
@@ -7,8 +8,8 @@ const buttonAddImage = document.querySelector('.js-button-add-image');
 const buttonAddImageDetail = document.querySelector('.js-button-add-image-detail');
 const inputUploadImage = document.querySelector('.js-input-upload-image');
 const inputUploadImageDetail = document.querySelector('.js-input-upload-image-detail');
-const buttonSaveData = document.querySelector('.js-button-save-data');
-const dataType = inputHiddenMenu.getAttribute('value').split('data_')[1].split('_add')[0];
+const buttonModifyData = document.querySelector('.js-button-modify-data');
+const dataType = inputHiddenMenu.getAttribute('value').split('data_')[1].split('_detail')[0];
 const inputPrice = document.querySelector('.js-input-price');
 const inputOrigin = document.querySelector('.js-input-origin');
 const inputManufacturer = document.querySelector('.js-input-manufacturer');
@@ -19,9 +20,13 @@ const inputSubName = document.querySelector('.js-input-sub-name');
 const divImageWrapper = document.querySelector('.js-div-image-wrapper');
 const divDetailImageWrapper = document.querySelector('.js-div-detail-image-wrapper');
 const divRelationshipWrapperNutrient = document.querySelector('.js-div-relationship-wrapper-nutrient');
+const inputHiddenDataId = document.querySelector('.js-input-hidden-data-id');
+const selectEffect = document.querySelector('.js-select-effect');
 
 
-function initDataAdd() {
+function initDataDetail() {
+    setDataToDetail(dataType, inputHiddenDataId.value);
+    console.log(dataType);
 
     if (dataType != 'nutrient') {
 
@@ -155,12 +160,11 @@ function initDataAdd() {
 
 
     //공통 ADD 함수들
-
     //키워드 추가
     buttonAddKeyword.addEventListener('click', function() {
         let value = inputKeyword.value.trim();
         let isDuplicated = false;
-        let keywords = document.querySelectorAll('.wrapper.add .form-box .keyword-wrapper p');
+        let keywords = document.querySelectorAll('.wrapper.detail .form-box .keyword-wrapper p');
         let divKeywordWrapper = buttonAddKeyword.parentElement;
 
         //키워드 중복검사
@@ -180,7 +184,7 @@ function initDataAdd() {
 
         divKeywordWrapper.insertAdjacentHTML('beforebegin', '<p>' + value + '</p>');
         inputKeyword.value = '';
-        keywords = document.querySelectorAll('.wrapper.add .form-box .keyword-wrapper p');
+        keywords = document.querySelectorAll('.wrapper.detail .form-box .keyword-wrapper p');
 
         //마지막 키워드에 클릭 리스너 만들기 (키워드 클릭 시 삭제)
         if (keywords.length > 0) {
@@ -192,9 +196,9 @@ function initDataAdd() {
     });
 
     //저장버튼 클릭 이벤트
-    buttonSaveData.addEventListener('click', function() {
+    buttonModifyData.addEventListener('click', function() {
         let dataType = this.getAttribute('data_type');
-        let name = document.querySelector('.js-input-name').value.trim();
+        let name = inputDetailTitle.value.trim();
         let keywords = '';
         let effect = '';
         let desc = '';
@@ -241,7 +245,7 @@ function initDataAdd() {
 
 
         let dataList = {
-            mode: 'ADD', // EDIT
+            mode: 'MODIFY', // EDIT
             dataType: dataType,
             name: name,
             keyword: keywords,
@@ -255,7 +259,8 @@ function initDataAdd() {
             manufacturer: manufacturer,
             packingVolume: packingVolume,
             recommended: recommended,
-            nutrients: nutrients
+            nutrients: nutrients,
+            dataId: inputHiddenDataId.value
         };
 
         createSpinner();
@@ -270,10 +275,9 @@ function initDataAdd() {
         .then(function(response) {
             if (response.status != 'OK') {
                 alert("저장 에러 발생");
-                removeSpinner();
                 return;
             }
-            let dataId = response.dataId;
+            let pId = response.pId;
 
             if (dataType == 'nutrient') {
                 alert('저장 완료');
@@ -281,135 +285,67 @@ function initDataAdd() {
                 return;
             }
 
-            // thumb
-            let form = inputUploadThumb.parentElement;
-            let formData = new FormData(form);
-            formData.append('dataId', dataId);
-            formData.append('mode', 'THUMB');
-            formData.append('dataType', dataType);
-
-            let imageFormList = [];
-            let imageDetailFormList = [];
-            
-            fetch('/admin/webapi/upload/image', {
-                method: 'POST',
-                body: formData
-            })
-            .then(data => data.json())
-            .then((response) => {
-                if (response.status != 'OK') {
-                    alert("이미지 저장 에러!");
-                    removeSpinner();
-                    return;
-                }
-
-                if (dataType != 'product') {
-                    alert('완료');
-                    location.href = '/admin/data/' + dataType;
-                    return;
-                }
-
-                imageFormList = divImageWrapper.querySelectorAll('.image-box form');
-                imageDetailFormList = divDetailImageWrapper.querySelectorAll('.image-box form');
-
-                let totalCnt = imageFormList.length + imageDetailFormList.length;
-
-                if (totalCnt == 0) {
-                    alert('성공');
-                    removeSpinner();
-                    return;
-                }
-
-                let responseCnt = 0;
-                imageFormList.forEach(function(imageForm, index) {
-                    
-                    formData = new FormData(imageForm);
-                    formData.append('dataId', dataId);
-                    formData.append('mode', 'DATA_IMAGE');
-                    formData.append('dataType', dataType);
-                    formData.append('order', index+1);
-
-                    fetch('/admin/webapi/upload/image', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(data => data.json())
-                    .then((response) => {
-                        if (response.status != 'OK') {
-                            removeSpinner();
-                            alert('이미지 저장 실패');
-                            return;
-                        }
-                        
-                        responseCnt++;
-
-                        if (responseCnt == totalCnt) {
-                            removeSpinner();
-                            alert('이미지 저장 성공');
-                            location.href = '/admin/data/' + dataType;
-                            return;
-                        }
-                    });
-
-                });
-
-                imageDetailFormList.forEach(function(imageForm, index) {
-                    formData = new FormData(imageForm);
-                    formData.append('dataId', dataId);
-                    formData.append('mode', 'DATA_IMAGE_DETAIL');
-                    formData.append('dataType', dataType);
-                    formData.append('order', index+1);
-
-                    fetch('/admin/webapi/upload/image', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(data => data.json())
-                    .then((response) => {
-                        if (response.status != 'OK') {
-                            removeSpinner();
-                            alert('이미지 저장 실패');
-                            return;
-                        }
-
-                        responseCnt++;
-
-                        if (responseCnt == totalCnt) {
-                            removeSpinner();
-                            alert('이미지 저장 성공');
-                            location.href = '/admin/data/' + dataType;
-                            return;
-                        }
-                    });
-                });
-
-            });
-
         });
-
-
-        // //연관질병 데이터 배열에 넣기
-        // document.querySelectorAll('.wrapper .form-box[data_type=disease] .relationship-wrapper p').forEach(function(p) {
-        //     disease_list.push(p.getAttribute('id'));
-        // });
-        // document.querySelectorAll('.wrapper .form-box[data_type=food] .relationship-wrapper p').forEach(function(p) {
-        //     food_list.push(p.getAttribute('id'));
-        // });
-        // document.querySelectorAll('.wrapper .form-box[data_type=symptom] .relationship-wrapper p').forEach(function(p) {
-        //     symptom_list.push(p.getAttribute('id'));
-        // });
-        // document.querySelectorAll('.wrapper .form-box[data_type=product] .relationship-wrapper p').forEach(function(p) {
-        //     product_list.push(p.getAttribute('id'));
-        // });
-        // document.querySelectorAll('.wrapper .form-box[data_type=tag] .relationship-wrapper p').forEach(function(p) {
-        //     tag_list.push(p.getAttribute('id'));
-        // });    
 
     });
 
 }
 
-initDataAdd();
+initDataDetail();
+
+function setDataToDetail(dataType, dataId) {
+
+    createSpinner();
+
+    fetch('/admin/webapi/get/data?' + new URLSearchParams({
+        dataType: dataType,
+        dataId: dataId
+    })) 
+    .then(function(data) {
+        return data.json();
+    })
+    .then(function(response) {
+        removeSpinner();
+        if (response.status != 'OK') {
+            console.log('ERROR');
+            return;
+        }
+
+        let data = response.result.dataList[0];
+        let keywordList = [] ;  
+        let divKeywordWrapper = buttonAddKeyword.parentElement;
+
+        if (dataType == 'nutrient') {
+            if (data.n_keyword != '') keywordList = data.n_keyword.split('|');
+
+            inputDetailTitle.value = data.n_name;
+            if (data.n_effect == "POSITIVE") {
+                selectEffect.value = "POSITIVE";
+            } else if (data.n_effect == "NORMAL") {
+                selectEffect.value = "NORMAL";
+            } else if (data.n_effect == "NEGATIVE") {
+                selectEffect.value = "NEGATIVE";
+            }
+
+            document.querySelector('.js-textarea-desc').innerText = data.n_desc;
+            document.querySelector('.js-textarea-desc-over').innerText = data.n_desc_over;
+
+        }
+
+        //키워드 처리
+        keywordList.forEach(function(keyword) {
+            divKeywordWrapper.insertAdjacentHTML('beforebegin', '<p>' + keyword + '</p>');
+        });
+        let pKeywords = document.querySelectorAll('.wrapper.detail .form-box .keyword-wrapper p');
+        pKeywords.forEach(function(p) {
+            p.addEventListener('click', function() {
+                this.remove();
+            })
+        });
+
+    });
+    
+}
 
 function getDataToDetail(dataType, keyword) {
     let tbodyDataList = document.querySelector('.js-tbody-data-list');
@@ -525,7 +461,7 @@ function getDataToDetail(dataType, keyword) {
                 body.classList.remove('overflow-hidden');
                                 
                 //추가된 연관 데이터 클릭 이벤트 (삭제)
-                let pListRelationship = document.querySelectorAll('.wrapper.add .form-box .relationship-wrapper p');
+                let pListRelationship = document.querySelectorAll('.wrapper.detail .form-box .relationship-wrapper p');
                 pListRelationship.forEach(function(pRelationship) {
                     pRelationship.addEventListener('click', function() {
                         this.remove();
