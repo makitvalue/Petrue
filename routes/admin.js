@@ -400,7 +400,7 @@ router.post('/webapi/save/data', (req, res) => {
 
         } else {
             // mode MODIFY
-            query = "DELETE FROM " + table + " WHERE " + t + "_" + dataType[0] + "_id = ?";
+            query = "DELETE FROM " + table + " WHERE " + t + dataType[0] + "_id = ?";
             params = [dataId];
 
             // DELETE nutrients maps
@@ -451,12 +451,12 @@ function updateDataImagesAndResponse(res, dataType, dataId, images, imagesDetail
     let imageDetailList = [];
 
     if (!f.isNone(images)) imageList = images.split('|');
-    if (!f.isNone(imagesDetail)) imagesDetail = imagesDetail.split('|');
+    if (!f.isNone(imagesDetail)) imageDetailList = imagesDetail.split('|');
 
     // DELETE images 일단 기존 image 지워줌
     let query = "DELETE FROM t_images WHERE i_type = 'DATA_IMAGE' AND i_target_id = ? AND i_data_type = ?";
     let params = [dataId, dataType];
-    o.mysql(query, params, function(error, result) {
+    o.mysql.query(query, params, function(error, result) {
         if (error) {
             console.log(error);
             res.json({ status: "ERR_MYSQL" });
@@ -479,6 +479,7 @@ function updateDataImagesAndResponse(res, dataType, dataId, images, imagesDetail
                 params = [];
                 for (let i = 0; i < imageList.length; i++) {
                     let image = imageList[i];
+                    if (i > 0) query += ", ";
                     query += "('DATA_IMAGE', ?, ?, ?, ?)";
                     params.push(image);
                     params.push(dataId);
@@ -486,7 +487,7 @@ function updateDataImagesAndResponse(res, dataType, dataId, images, imagesDetail
                     params.push(dataType);
                 }
 
-                o.mysql(query, params, function(error, result) {
+                o.mysql.query(query, params, function(error, result) {
                     if (error) {
                         console.log(error);
                         res.json({ status: "ERR_MYSQL" });
@@ -500,6 +501,7 @@ function updateDataImagesAndResponse(res, dataType, dataId, images, imagesDetail
                         params = [];
                         for (let i = 0; i < imageDetailList.length; i++) {
                             let imageDetail = imageDetailList[i];
+                            if (i > 0) query += ", ";
                             query += "('DATA_IMAGE_DETAIL', ?, ?, ?, ?)";
                             params.push(imageDetail);
                             params.push(dataId);
@@ -528,6 +530,7 @@ function updateDataImagesAndResponse(res, dataType, dataId, images, imagesDetail
                     params = [];
                     for (let i = 0; i < imageDetailList.length; i++) {
                         let imageDetail = imageDetailList[i];
+                        if (i > 0) query += ", ";
                         query += "('DATA_IMAGE_DETAIL', ?, ?, ?, ?)";
                         params.push(imageDetail);
                         params.push(dataId);
