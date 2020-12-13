@@ -185,18 +185,23 @@ router.get('/webapi/get/data', function(req, res) {
         return;
     }
 
-    let query = "SELECT * FROM t_" + dataType + "s";
     let t = dataType[0];
+
+    let query = "SELECT *";
+    // query += " (SELECT GROUP_CONCAT(i_path SEPARATOR '|') FROM t_images AS iTab WHERE iTab.i_target_id = dTab." + t + "_id AND iTab.i_type LIKE 'DATA_IMAGE' AND iTab.i_data_type LIKE ?) AS images,";
+    // query += " (SELECT GROUP_CONCAT(i_path SEPARATOR '|') FROM t_images AS iTab WHERE iTab.i_target_id = dTab." + t + "_id AND iTab.i_type LIKE 'DATA_IMAGE_DETAIL' AND iTab.i_data_type LIKE ?) AS detailImages,";
+    // query += " (SELECT GROUP_CONCAT(i_path SEPARATOR '|') FROM t_images AS iTab WHERE iTab.i_target_id = dTab." + t + "_id AND iTab.i_type LIKE 'DATA_IMAGE_DETAIL' AND iTab.i_data_type LIKE ?) AS nutrients";
+    query += " FROM t_" + dataType + "s";
     let params = [];
     if (!f.isNone(keyword) || !f.isNone(dataId)) query += " WHERE ";
 
     if (!f.isNone(keyword)) {
-        query += t + "_keyword LIKE ?";
+        query += "dTab." + t + "_keyword LIKE ?";
         params.push('%' + keyword + '%');
     }
 
     if (!f.isNone(dataId)) {
-        query += t + "_id = ?";
+        query += "dTab." + t + "_id = ?";
         params.push(dataId);
     }
 
@@ -209,7 +214,7 @@ router.get('/webapi/get/data', function(req, res) {
 
         let dataList = result;
 
-        // dataid 있으면 이미지들까지
+        // dataid 있으면 이미지들, nutrients까지
         if (!f.isNone(dataId)) {
             query = "SELECT * FROM t_images WHERE i_target_id = ? AND i_data_type = ? ORDER BY i_order ASC";
             params = [dataId, dataType];
@@ -221,17 +226,31 @@ router.get('/webapi/get/data', function(req, res) {
                 }
 
                 let imageList = result;
-                // let imageDetailList = [];
 
-                // for (let i = 0; result.length; i++) {
-                //     console.log(result[i]);
-                //     let iType = result[i].i_type;
+                let mt = "";
+                if (dataType == 'product') {
+                    mt = "mpn_";
+                } else if (dataType == 'food') {
+                    mt = "mfn_";
+                } else if (dataType == 'disease') {
+                    mt = "mdn_";
+                } else if (dataType == 'symtom') {
+                    mt = "msn_";
+                }
+                query = "SELECT * FROM t_maps_" + dataType + "_nutrient WHERE " + mt + "_" + t + "_id = ?";
+                params = [dataId];
 
-                //     if (iType == 'DATA_IMAGE') imageList.push(result[i]);
-                //     else if (iType == 'DATA_IMAGE_DETAIL') imageDetailList.push(result[i]);
-                // }
+                o.mysql.query(query, params, function(error, result) {
+                    if (error) {
+                        console.log(error);
+                        res.json({ status: 'ERR_MYSQL' });
+                        return;
+                    }
 
-                res.json({ status: 'OK', result: { dataList: dataList, imageList: imageList }});
+                    let nutrientList = result;
+
+                    res.json({ status: 'OK', result: { dataList: dataList, imageList: imageList, nutrientList: nutrientList }});
+                });
             });
 
         } else {
