@@ -434,49 +434,48 @@ function updateDataImagesAndResponse(res, dataType, dataId, images, imagesDetail
     if (!f.isNone(images)) imageList = images.split('|');
     if (!f.isNone(imagesDetail)) imagesDetail = imagesDetail.split('|');
 
-    if (imageList.length > 0) {
+    // DELETE images 일단 기존 image 지워줌
+    let query = "DELETE FROM t_images WHERE i_type = 'DATA_IMAGE' AND i_target_id = ? AND i_data_type = ?";
+    let params = [dataId, dataType];
+    o.mysql(query, params, function(error, result) {
+        if (error) {
+            console.log(error);
+            res.json({ status: "ERR_MYSQL" });
+            return;
+        }
 
-        // DELETE images 일단 기존 image 지워줌
-        let query = "DELETE FROM t_images WHERE i_type = 'DATA_IMAGE' AND i_target_id = ? AND i_data_type = ?";
-        let params = [dataId, dataType];
-
-        o.mysql(query, params, function(error, result) {
+        // DELETE Detail image도 지워줌
+        query = "DELETE FROM t_images WHERE i_type = 'DATA_IMAGE_DETAIL' AND i_target_id = ? AND i_data_type = ?";
+        params = [dataId, dataType];
+        o.mysql.query(query, params, function(error, result) {
             if (error) {
                 console.log(error);
                 res.json({ status: "ERR_MYSQL" });
                 return;
             }
 
-            query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order, i_data_type) VALUES ";
-            params = [];
-            for (let i = 0; i < imageList.length; i++) {
-                let image = imageList[i];
-                query += "('DATA_IMAGE', ?, ?, ?, ?)";
-                params.push(image);
-                params.push(dataId);
-                params.push(i + 1); // *중요: order는 들어온 이미지 순서로
-                params.push(dataType);
-            }
-
-            o.mysql(query, params, function(error, result) {
-                if (error) {
-                    console.log(error);
-                    res.json({ status: "ERR_MYSQL" });
-                    return;
+            if (imageList.length > 0) {
+                // image 있으면 저장
+                query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order, i_data_type) VALUES ";
+                params = [];
+                for (let i = 0; i < imageList.length; i++) {
+                    let image = imageList[i];
+                    query += "('DATA_IMAGE', ?, ?, ?, ?)";
+                    params.push(image);
+                    params.push(dataId);
+                    params.push(i + 1); // *중요: order는 들어온 이미지 순서로
+                    params.push(dataType);
                 }
 
-                if (imageDetailList.length > 0) {
-                    // DELETE Detail images
-                    query = "DELETE FROM t_images WHERE i_type = 'DATA_IMAGE_DETAIL' AND i_target_id = ? AND i_data_type = ?";
-                    params = [dataId, dataType];
+                o.mysql(query, params, function(error, result) {
+                    if (error) {
+                        console.log(error);
+                        res.json({ status: "ERR_MYSQL" });
+                        return;
+                    }
 
-                    o.mysql.query(query, params, function(error, result) {
-                        if (error) {
-                            console.log(error);
-                            res.json({ status: "ERR_MYSQL" });
-                            return;
-                        }
-
+                    // detail image 있으면 저장
+                    if (imageDetailList.length > 0) {
                         // Start INSERT DATA_IMAGE_DETAIL
                         query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order, i_data_type) VALUES ";
                         params = [];
@@ -497,55 +496,41 @@ function updateDataImagesAndResponse(res, dataType, dataId, images, imagesDetail
                             res.json({ status: "OK" });
                         });
                         // End INSERT DATA_IMAGE_DETAIL
+                    } else {
+                        res.json({ status: "OK" });
+                    }
+                });
 
+            } else {
+                // image 없으면 detail image 확인
+                if (imageDetailList.length > 0) {
+                    // Start INSERT DATA_IMAGE_DETAIL
+                    query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order, i_data_type) VALUES ";
+                    params = [];
+                    for (let i = 0; i < imageDetailList.length; i++) {
+                        let imageDetail = imageDetailList[i];
+                        query += "('DATA_IMAGE_DETAIL', ?, ?, ?, ?)";
+                        params.push(imageDetail);
+                        params.push(dataId);
+                        params.push(i + 1);
+                        params.push(dataType);
+                    }
+                    o.mysql.query(query, params, function(error, result) {
+                        if (error) {
+                            console.log(error);
+                            res.json({ status: "ERR_MYSQL" });
+                            return;
+                        }
+                        res.json({ status: "OK" });
                     });
-    
+                    // End INSERT DATA_IMAGE_DETAIL
+
                 } else {
                     res.json({ status: "OK" });
                 }
-            });
+            }
         });
-
-    } else {
-        if (imageDetailList.length > 0) {
-            // DELETE Detail images
-            let query = "DELETE FROM t_images WHERE i_type = 'DATA_IMAGE_DETAIL' AND i_target_id = ? AND i_data_type = ?";
-            let params = [dataId, dataType];
-
-            o.mysql.query(query, params, function(error, result) {
-                if (error) {
-                    console.log(error);
-                    res.json({ status: "ERR_MYSQL" });
-                    return;
-                }
-
-                // Start INSERT DATA_IMAGE_DETAIL
-                query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order, i_data_type) VALUES ";
-                params = [];
-                for (let i = 0; i < imageDetailList.length; i++) {
-                    let imageDetail = imageDetailList[i];
-                    query += "('DATA_IMAGE_DETAIL', ?, ?, ?, ?)";
-                    params.push(imageDetail);
-                    params.push(dataId);
-                    params.push(i + 1);
-                    params.push(dataType);
-                }
-                o.mysql.query(query, params, function(error, result) {
-                    if (error) {
-                        console.log(error);
-                        res.json({ status: "ERR_MYSQL" });
-                        return;
-                    }
-                    res.json({ status: "OK" });
-                });
-                // End INSERT DATA_IMAGE_DETAIL
-
-            });
-
-        } else {
-            res.json({ status: "OK" });
-        }
-    }
+    });
 }
 
 
