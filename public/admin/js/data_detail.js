@@ -284,15 +284,14 @@ function initDataDetail() {
                     alert("저장 에러 발생");
                     return;
                 }
-                // location.href = '/admin/data/' + dataType;
+                location.href = '/admin/data/' + dataType;
                 return;
     
             });
         } else if (dataType == 'product') { //제품 데이터 저장
             subName = inputSubName.value.trim();
             category = selectProductCategory.value;
-            price = inputPrice.value.trim();
-
+            price = parseInt(inputPrice.value.trim());
             origin = inputOrigin.value.trim();
             manufacturer = inputManufacturer.value.trim();
             packingVolume = inputPackingVolume.value.trim();
@@ -409,7 +408,7 @@ function initDataDetail() {
                                 }
                     
 
-                                // location.href = '/admin/data/' + dataType;
+                                location.href = '/admin/data/' + dataType;
                                 return;
                     
                             });
@@ -497,7 +496,7 @@ function initDataDetail() {
                                     alert("저장 에러 발생");
                                     return;
                                 }
-                                // location.href = '/admin/data/' + dataType;
+                                location.href = '/admin/data/' + dataType;
                                 return;
                     
                             });
@@ -558,7 +557,7 @@ function initDataDetail() {
                         alert("저장 에러 발생");
                         return;
                     }
-                    // location.href = '/admin/data/' + dataType;
+                    location.href = '/admin/data/' + dataType;
                     return;
         
                 });

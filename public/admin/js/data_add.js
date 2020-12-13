@@ -345,7 +345,7 @@ function initDataAdd() {
 
                         if (responseCnt == totalCnt) {
                             removeSpinner();
-                            alert('이미지 저장 성공');
+                            alert('저장 완료');
                             location.href = '/admin/data/' + dataType;
                             return;
                         }
@@ -376,7 +376,7 @@ function initDataAdd() {
 
                         if (responseCnt == totalCnt) {
                             removeSpinner();
-                            alert('이미지 저장 성공');
+                            alert('저장 완료');
                             location.href = '/admin/data/' + dataType;
                             return;
                         }
