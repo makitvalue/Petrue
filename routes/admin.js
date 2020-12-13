@@ -167,7 +167,7 @@ router.get('/webapi/get/data', function(req, res) {
     let keyword = req.query.keyword;
     let dataId = req.query.dataId;
 
-    if (f.isNone(dataType) || f.isNone(dataId)) {
+    if (f.isNone(dataType)) {
         res.json({ status: 'ERR_WRONG_PARAMS' });
         return;
     }
@@ -208,6 +208,7 @@ router.get('/webapi/get/data', function(req, res) {
 router.post('/webapi/save/data', (req, res) => {
     let mode = req.body.mode; // ADD, MODIFY
     let dataType = req.body.dataType;
+    let dataId = req.body.dataId;
     let name = req.body.name;
     let keyword = req.body.keyword;
     let nutrients = req.body.nutrients;
@@ -226,6 +227,11 @@ router.post('/webapi/save/data', (req, res) => {
         res.json({ status: 'ERR_WRONG_PARAMS' });
         return;
     }
+
+    if (mode == 'MODIFY' && f.isNone(dataId)) {
+        res.json({ status: 'ERR_NO_DATA_ID' });
+        return;
+    }
     
     let params = [];
     let query = "";
@@ -234,13 +240,16 @@ router.post('/webapi/save/data', (req, res) => {
         effect = req.body.effect;
         desc = req.body.desc;
         descOver = req.body.descOver;
-        params = [name, keyword, effect, desc, descOver];
 
         if (mode == 'ADD') {
+            params = [name, keyword, effect, desc, descOver];
             query += "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over) VALUES(?, ?, ?, ?, ?)";
         } else {
             query += "UPDATE t_nutrients SET";
-            query += "";
+            query += " n_name = ?, n_keyword = ?, n_effect = ?, n_desc = ?";
+            query += " n_desc_over = ?, n_updated_date = NOW()";
+            query += " WHERE n_id = ?";
+            params = [name, keyword, effect, desc, descOver, dataId];
         }
 
     } else if (dataType == 'product') {
@@ -267,7 +276,9 @@ router.post('/webapi/save/data', (req, res) => {
             res.json({status: "ERR_DB_INSERT"});
             return;
         }
-        let pId = result.insertId;
+
+        let pId = dataId;
+        if (mode == 'ADD') dataId = result.insertId;
         
         if (nutrients.length > 0) {
             let table = "t_maps_" + dataType + "_nutrient";
@@ -289,9 +300,9 @@ router.post('/webapi/save/data', (req, res) => {
             nutrientList.forEach((nutrient, index) => {
 
                 if (index != 0) {
-                    query += ', (' + pId + ', ' + nutrient + ')';                    
+                    query += ', (' + dataId + ', ' + nutrient + ')';                    
                 } else {
-                    query += ' (' + pId + ', ' + nutrient + ')';
+                    query += ' (' + dataId + ', ' + nutrient + ')';
                 }
             });
 
@@ -302,11 +313,11 @@ router.post('/webapi/save/data', (req, res) => {
                     return;
                 }
 
-                res.json({status: "OK", pId: pId});
+                res.json({status: "OK", dataId: dataId});
             });
 
         } else {
-            res.json({status: "OK", pId: pId});
+            res.json({status: "OK", dataId: dataId});
         }
 
     });
