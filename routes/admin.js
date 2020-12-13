@@ -653,4 +653,28 @@ router.post('/webapi/upload/image', (req, res) => {
 });
 
 
+router.post('/webapi/upload/image/from/modify', (req, res) => {
+    let form = new formidable.IncomingForm();
+    form.encoding = 'utf-8';
+    form.uploadDir = 'upload/temp';
+    form.multiples = true;
+    form.keepExtensions = true;
+    
+    form.parse(req, function(error, body, files) {
+        if (error) {
+            res.json({ status: 'ERR_UPLOAD' });
+            return;
+        }
+        
+        let imageName = f.generateRandomId() + '.' + files.image.path.split('.')[1];
+        let imageFilePath = 'public/images/' + imageName;
+        let imagePath = '/images/' + imageName;
+
+        fs.rename(files.image.path, imageFilePath, function() {
+            res.json({ status: 'OK', imagePath: imagePath });
+        });
+    });
+});
+
+
 module.exports = router;
