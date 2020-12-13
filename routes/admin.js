@@ -403,12 +403,6 @@ router.post('/webapi/save/data', (req, res) => {
             query = "DELETE FROM " + table + " WHERE " + t + "_" + dataType[0] + "_id = ?";
             params = [dataId];
 
-            console.log(nutrientList);
-            console.log(images);
-            console.log(imagesDetail);
-            res.json({ status: 'OK' });
-            return;
-
             // DELETE nutrients maps
             o.mysql.query(query, params, (error, result) => {
                 if (error) {
