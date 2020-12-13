@@ -220,22 +220,18 @@ router.get('/webapi/get/data', function(req, res) {
                     return;
                 }
 
-                let imageList = [];
-                let imageDetailList = [];
+                let imageList = result;
+                // let imageDetailList = [];
 
-                for (let i = 0; result.length; i++) {
-                    console.log(result[i]);
-                    let iType = result[i].i_type;
+                // for (let i = 0; result.length; i++) {
+                //     console.log(result[i]);
+                //     let iType = result[i].i_type;
 
-                    if (iType == 'DATA_IMAGE') imageList.push(result[i]);
-                    else if (iType == 'DATA_IMAGE_DETAIL') imageDetailList.push(result[i]);
-                }
+                //     if (iType == 'DATA_IMAGE') imageList.push(result[i]);
+                //     else if (iType == 'DATA_IMAGE_DETAIL') imageDetailList.push(result[i]);
+                // }
 
-                res.json({ status: 'OK', result: {
-                    dataList: dataList, 
-                    imageList: imageList,
-                    imageDetailList: imageDetailList
-                }});
+                res.json({ status: 'OK', result: { dataList: dataList, imageList: imageList }});
             });
 
         } else {
