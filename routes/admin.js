@@ -229,13 +229,13 @@ router.get('/webapi/get/data', function(req, res) {
 
                 let mt = "";
                 if (dataType == 'product') {
-                    mt = "mpn_";
+                    mt = "mpn";
                 } else if (dataType == 'food') {
-                    mt = "mfn_";
+                    mt = "mfn";
                 } else if (dataType == 'disease') {
-                    mt = "mdn_";
+                    mt = "mdn";
                 } else if (dataType == 'symtom') {
-                    mt = "msn_";
+                    mt = "msn";
                 }
                 query = "SELECT * FROM t_maps_" + dataType + "_nutrient WHERE " + mt + "_" + t + "_id = ?";
                 params = [dataId];
