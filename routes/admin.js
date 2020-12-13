@@ -67,6 +67,14 @@ router.get('/data/product/add', function(req, res, next) {
         menu: 'data_product_add'
     });
 });
+router.get('/data/product/detail/:pId', function(req, res, next) {
+    let pId = req.params.pId;
+
+    res.render('admin/index', {
+        menu: 'data_product_detail',
+        pId: pId
+    });
+});
 
 router.get('/data/tag', function(req, res, next) {
     res.render('admin/index', {
@@ -268,7 +276,7 @@ router.post('/webapi/save/data', (req, res) => {
         origin = req.body.origin;
         manufacturer = req.body.manufacturer;
         packingVolume = req.body.packingVolume;
-        recommended = req.body.recommended; 
+        recommended = req.body.recommended;
 
         params = [name, keyword, price, origin, manufacturer, category, packingVolume, recommended, subName];
         
