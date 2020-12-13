@@ -185,7 +185,7 @@ router.get('/webapi/get/data', function(req, res) {
         return;
     }
 
-    let query = "SELECT * FROM t_" + dataType + 's';
+    let query = "SELECT * FROM t_" + dataType + "s";
     let t = dataType[0];
     let params = [];
     if (!f.isNone(keyword) || !f.isNone(dataId)) query += " WHERE ";
@@ -207,7 +207,40 @@ router.get('/webapi/get/data', function(req, res) {
             return;
         }
 
-        res.json({ status: 'OK', result: { dataList: result } });
+        let dataList = [];
+
+        // dataid 있으면 이미지들까지
+        if (!f.isNone(dataId)) {
+            query = "SELECT * FROM t_images WHERE i_target_id = ? AND i_data_type = ?";
+            params = [dataId, dataType];
+            o.mysql.query(query, params, function(error, result) {
+                if (error) {
+                    console.log(error);
+                    res.json({ status: 'ERR_MYSQL' });
+                    return;
+                }
+
+                let imageList = [];
+                let imageDetailList = [];
+
+                for (let i = 0; result.length; i++) {
+                    let iType = result[i].i_type;
+
+                    if (iType == 'DATA_IMAGE') imageList.push(result[i]);
+                    else if (iType == 'DATA_IMAGE_DETAIL') imageDetailList.push(result[i]);
+                }
+
+                res.json({ status: 'OK', result: {
+                    dataList: dataList, 
+                    imageList: imageList,
+                    imageDetailList: imageDetailList
+                }});
+            });
+
+        } else {
+            res.json({ status: 'OK', result: { dataList: dataList } });
+        }
+
     });
 });
 
