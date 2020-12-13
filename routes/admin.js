@@ -237,7 +237,7 @@ router.get('/webapi/get/data', function(req, res) {
                 } else if (dataType == 'symtom') {
                     mt = "msn";
                 }
-                query = "SELECT *, nTab.n_name FROM t_maps_" + dataType + "_nutrient AS mnTab WHERE " + mt + "_" + t + "_id = ? JOIN LEFT t_nutrients AS nTab ON nTab.n_id = mnTab." + mt + "_n_id";
+                query = "SELECT *, nTab.n_name FROM t_maps_" + dataType + "_nutrient AS mnTab JOIN LEFT t_nutrients AS nTab ON nTab.n_id = mnTab." + mt + "_n_id WHERE mnTab." + mt + "_" + t + "_id = ?";
                 params = [dataId];
 
                 o.mysql.query(query, params, function(error, result) {
