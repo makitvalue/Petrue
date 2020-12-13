@@ -211,7 +211,7 @@ router.get('/webapi/get/data', function(req, res) {
 
         // dataid 있으면 이미지들까지
         if (!f.isNone(dataId)) {
-            query = "SELECT * FROM t_images WHERE i_target_id = ? AND i_data_type = ?";
+            query = "SELECT * FROM t_images WHERE i_target_id = ? AND i_data_type = ? ORDER BY i_order ASC";
             params = [dataId, dataType];
             o.mysql.query(query, params, function(error, result) {
                 if (error) {
@@ -457,7 +457,7 @@ function updateDataImagesAndResponse(res, dataType, dataId, images, imagesDetail
                 query += "('DATA_IMAGE', ?, ?, ?, ?)";
                 params.push(image);
                 params.push(dataId);
-                params.push(i + 1);
+                params.push(i + 1); // *중요: order는 들어온 이미지 순서로
                 params.push(dataType);
             }
 
