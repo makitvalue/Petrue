@@ -284,7 +284,7 @@ function initDataDetail() {
                     alert("저장 에러 발생");
                     return;
                 }
-                location.href = '/admin/data/' + dataType;
+                // location.href = '/admin/data/' + dataType;
                 return;
     
             });
@@ -292,6 +292,7 @@ function initDataDetail() {
             subName = inputSubName.value.trim();
             category = selectProductCategory.value;
             price = inputPrice.value.trim();
+
             origin = inputOrigin.value.trim();
             manufacturer = inputManufacturer.value.trim();
             packingVolume = inputPackingVolume.value.trim();
@@ -408,7 +409,7 @@ function initDataDetail() {
                                 }
                     
 
-                                location.href = '/admin/data/' + dataType;
+                                // location.href = '/admin/data/' + dataType;
                                 return;
                     
                             });
@@ -496,7 +497,7 @@ function initDataDetail() {
                                     alert("저장 에러 발생");
                                     return;
                                 }
-                                location.href = '/admin/data/' + dataType;
+                                // location.href = '/admin/data/' + dataType;
                                 return;
                     
                             });
@@ -520,8 +521,6 @@ function initDataDetail() {
 
                 let imageJoinUrls = imageUrlList.join('|');
                 let detailImageJoinUrls = detailImageUrlList.join('|'); 
-
-                console.log(imageJoinUrls, detailImageJoinUrls);
         
                 let dataList = {
                     mode: 'MODIFY', // EDIT
@@ -559,7 +558,7 @@ function initDataDetail() {
                         alert("저장 에러 발생");
                         return;
                     }
-                    location.href = '/admin/data/' + dataType;
+                    // location.href = '/admin/data/' + dataType;
                     return;
         
                 });
