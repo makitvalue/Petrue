@@ -79,7 +79,7 @@ function initDataDetail() {
                     return;
                 }
                 setBackgroundImage(divThumbImage, response.imagePath);
-                
+
             });
 
         });
@@ -226,7 +226,6 @@ function initDataDetail() {
         let packingVolume = '';
         let recommended = ''; 
         let nutrients = '';
-        let thumbnail = '';
 
         let keywordList = [];
         let nutrientList = [];
@@ -298,6 +297,7 @@ function initDataDetail() {
             packingVolume = inputPackingVolume.value.trim();
             recommended = inputRecommended.value.trim();
 
+
             let thumbnail = getBackgroundImage(divThumbImage);
 
             let allimageList = divImageWrapper.querySelectorAll('.image-box form input');
@@ -305,7 +305,6 @@ function initDataDetail() {
             allimageList.forEach(function(image) {
                 if (image.value != '') newImageList.push(image); 
             });
-
             let allDetailImageList = divDetailImageWrapper.querySelectorAll('.image-box form input');
             let newDetailImageList = [];
             allDetailImageList.forEach(function(image) {
@@ -508,6 +507,21 @@ function initDataDetail() {
                 });
 
             } else {
+
+                let allimageList = divImageWrapper.querySelectorAll('.image-box form input');
+                let allDetailImageList = divDetailImageWrapper.querySelectorAll('.image-box form input');
+
+                allimageList.forEach(function(image) {
+                    imageUrlList.push(getBackgroundImage(image.parentElement.parentElement.querySelector('.image')));
+                });      
+                allDetailImageList.forEach(function(image) {
+                    detailImageUrlList.push(getBackgroundImage(image.parentElement.parentElement.querySelector('.image')));
+                });         
+
+                let imageJoinUrls = imageUrlList.join('|');
+                let detailImageJoinUrls = detailImageUrlList.join('|'); 
+
+                console.log(imageJoinUrls, detailImageJoinUrls);
         
                 let dataList = {
                     mode: 'MODIFY', // EDIT
@@ -526,8 +540,8 @@ function initDataDetail() {
                     recommended: recommended,
                     nutrients: nutrients,
                     dataId: inputHiddenDataId.value,
-                    images: '',
-                    imagesDetail: '',
+                    images: imageJoinUrls,
+                    imagesDetail: detailImageJoinUrls,
                     thumb: thumbnail
                 };
         
