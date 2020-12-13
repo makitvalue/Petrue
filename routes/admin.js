@@ -224,6 +224,7 @@ router.get('/webapi/get/data', function(req, res) {
                 let imageDetailList = [];
 
                 for (let i = 0; result.length; i++) {
+                    console.log(result[i]);
                     let iType = result[i].i_type;
 
                     if (iType == 'DATA_IMAGE') imageList.push(result[i]);
