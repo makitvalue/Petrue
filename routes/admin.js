@@ -88,6 +88,16 @@ router.get('/data/nutrient/add', function(req, res, next) {
 });
 
 
+router.get('/data/nutrient/detail/:nId', function(req, res, next) {
+    let nId = req.params.nId;
+
+    res.render('admin/index', {
+        menu: 'data_nutrient_detail',
+        nId: nId
+    });
+});
+
+
 
 
 
@@ -151,23 +161,38 @@ router.get('/test', function(req, res, next) {
 
 
 /* GET home page. */
-router.get('/webapi/get/data', function(req, res, next) {
+router.get('/webapi/get/data', function(req, res) {
 
-    var dataType = req.query.dataType;
-    var keyword = req.query.keyword;
+    let dataType = req.query.dataType;
+    let keyword = req.query.keyword;
+    let dataId = req.query.dataId;
+
+    if (f.isNone(dataType) || f.isNone(dataId)) {
+        res.json({ status: 'ERR_WRONG_PARAMS' });
+        return;
+    }
 
     if (!(dataType == 'food' || dataType == 'disease' || dataType == 'symptom' || dataType == 'tag' || dataType == 'product' || dataType == 'nutrient')) {
         res.json({ status: 'ERR_WRONG_DATA' });
         return;
     }
 
-    var query = "SELECT * FROM t_" + dataType + 's';
-    if (keyword != '') {
-        query += " WHERE " + dataType[0] + "_keyword LIKE ?";
-        keyword = "%" + keyword + "%";
+    let query = "SELECT * FROM t_" + dataType + 's';
+    let t = dataType[0];
+    let params = [];
+    if (!f.isNone(keyword) || !f.isNone(dataId)) query += " WHERE ";
+
+    if (!f.isNone(keyword)) {
+        query += t + "_keyword LIKE ?";
+        params.push('%' + keyword + '%');
     }
 
-    o.mysql.query(query, keyword, function(error, result) {
+    if (!f.isNone(dataId)) {
+        query += t + "_id = ?";
+        params.push(dataId);
+    }
+
+    o.mysql.query(query, params, function(error, result) {
         if (error) {
             console.log(error);
             res.json({ status: 'ERR_MYSQL' });
@@ -181,6 +206,7 @@ router.get('/webapi/get/data', function(req, res, next) {
 
 //데이터 저장
 router.post('/webapi/save/data', (req, res) => {
+    let mode = req.body.mode; // ADD, MODIFY
     let dataType = req.body.dataType;
     let name = req.body.name;
     let keyword = req.body.keyword;
@@ -195,17 +221,27 @@ router.post('/webapi/save/data', (req, res) => {
     let manufacturer = '';
     let packingVolume = '';
     let recommended = ''; 
-
+    
+    if (f.isNone(mode)) {
+        res.json({ status: 'ERR_WRONG_PARAMS' });
+        return;
+    }
     
     let params = [];
-    let query = '';
+    let query = "";
 
     if (dataType == 'nutrient') {
         effect = req.body.effect;
         desc = req.body.desc;
         descOver = req.body.descOver;
         params = [name, keyword, effect, desc, descOver];
-        query = "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over) VALUES(?, ?, ?, ?, ?)";
+
+        if (mode == 'ADD') {
+            query += "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over) VALUES(?, ?, ?, ?, ?)";
+        } else {
+            query += "UPDATE t_nutrients SET";
+            query += "";
+        }
 
     } else if (dataType == 'product') {
         subName = req.body.subName;
@@ -217,7 +253,12 @@ router.post('/webapi/save/data', (req, res) => {
         recommended = req.body.recommended; 
 
         params = [name, keyword, price, origin, manufacturer, category, packingVolume, recommended, subName];
-        query = "INSERT INTO t_products(p_name, p_keyword, p_price, p_origin, p_manufacturer, p_category, p_packing_volume, p_recommended, p_sub_name) VALUE(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        if (mode == 'ADD') {
+            query += "INSERT INTO t_products(p_name, p_keyword, p_price, p_origin, p_manufacturer, p_category, p_packing_volume, p_recommended, p_sub_name) VALUE(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        } else {
+
+        }
     }
 
     o.mysql.query(query, params, (error, result) => {
@@ -279,7 +320,7 @@ router.post('/webapi/delete/data', (req, res) => {
     let ids = req.body.ids;
 
     if (ids.length < 1 || dataType.length < 1) {
-        res.json({status: 'WRONG_PARAMS'});
+        res.json({status: 'ERR_WRONG_PARAMS'});
         return;
     }
 
