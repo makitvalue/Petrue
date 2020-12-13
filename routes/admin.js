@@ -336,8 +336,8 @@ router.post('/webapi/save/data', (req, res) => {
             query += " p_name = ?, p_keyword = ?, p_price = ?, p_origin = ?, p_manufacturer = ?,";
             query += " p_category = ?, p_packing_volume = ?, p_recommended = ?, p_sub_name = ?, p_thumb_path = ?";
             query += " WHERE p_id = ?";
-            query.push(thumb);
-            query.push(dataId);
+            params.push(thumb);
+            params.push(dataId);
         }
     }
 
