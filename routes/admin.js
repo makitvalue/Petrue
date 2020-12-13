@@ -212,6 +212,10 @@ router.post('/webapi/save/data', (req, res) => {
     let name = req.body.name;
     let keyword = req.body.keyword;
     let nutrients = req.body.nutrients;
+    let nutrientList = [];
+    let thumb = req.body.thumb;
+    let images = req.body.images;
+    let imagesDetail = req.body.imagesDetail;
     let effect = '';
     let desc = '';
     let descOver = '';
@@ -223,7 +227,7 @@ router.post('/webapi/save/data', (req, res) => {
     let packingVolume = '';
     let recommended = ''; 
     
-    if (f.isNone(mode)) {
+    if (f.isNone(mode) || f.isNone(dataType)) {
         res.json({ status: 'ERR_WRONG_PARAMS' });
         return;
     }
@@ -231,6 +235,10 @@ router.post('/webapi/save/data', (req, res) => {
     if (mode == 'MODIFY' && f.isNone(dataId)) {
         res.json({ status: 'ERR_NO_DATA_ID' });
         return;
+    }
+
+    if (!f.isNone(nutrients)) {
+        nutrientList = nutrients.split('|');
     }
     
     let params = [];
@@ -247,7 +255,7 @@ router.post('/webapi/save/data', (req, res) => {
             query += "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over) VALUES(?, ?, ?, ?, ?)";
         } else {
             query += "UPDATE t_nutrients SET";
-            query += " n_name = ?, n_keyword = ?, n_effect = ?, n_desc = ?";
+            query += " n_name = ?, n_keyword = ?, n_effect = ?, n_desc = ?,";
             query += " n_desc_over = ?, n_updated_date = NOW()";
             query += " WHERE n_id = ?";
             params.push(dataId);
@@ -267,10 +275,16 @@ router.post('/webapi/save/data', (req, res) => {
         if (mode == 'ADD') {
             query += "INSERT INTO t_products(p_name, p_keyword, p_price, p_origin, p_manufacturer, p_category, p_packing_volume, p_recommended, p_sub_name) VALUE(?, ?, ?, ?, ?, ?, ?, ?, ?)";
         } else {
-            
+            query += "UPDATE t_products SET";
+            query += " p_name = ?, p_keyword = ?, p_price = ?, p_origin = ?, p_manufacturer = ?,";
+            query += " p_category = ?, p_packing_volume = ?, p_recommended = ?, p_sub_name = ?, p_thumb_path = ?";
+            query += " WHERE p_id = ?";
+            query.push(thumb);
+            query.push(dataId);
         }
     }
 
+    // INSERT data
     o.mysql.query(query, params, (error, result) => {
         if (error) {
             console.log(error);
@@ -278,6 +292,7 @@ router.post('/webapi/save/data', (req, res) => {
             return;
         }
 
+        // nutrient일 경우 maps / image 없음
         if (dataType == 'nutrient') {
             res.json({ status: "OK" });
             return;
@@ -299,9 +314,8 @@ router.post('/webapi/save/data', (req, res) => {
         if (mode == 'ADD') {
             dataId = result.insertId;
         
-            // INSERT nutrients
-            if (nutrients.length > 0) {
-                let nutrientList = nutrients.split('|');
+            // INSERT nutrients maps
+            if (nutrientList.length > 0) {
                 let query = 'INSERT INTO ' + table + '(' + t + dataType[0] + '_id, ' + t + 'n_id) VALUES';
 
                 nutrientList.forEach((nutrient, index) => {
@@ -328,6 +342,7 @@ router.post('/webapi/save/data', (req, res) => {
             }
 
         } else {
+            // mode MODIFY
             query = "DELETE FROM " + table + " WHERE " + t + "_" + dataType[0] + "_id = ?";
             params = [dataId];
 
@@ -340,8 +355,7 @@ router.post('/webapi/save/data', (req, res) => {
                 }
 
                 // INSERT nutrients
-                if (nutrients.length > 0) {
-                    let nutrientList = nutrients.split('|');
+                if (nutrientList.length > 0) {
                     let query = 'INSERT INTO ' + table + '(' + t + dataType[0] + '_id, ' + t + 'n_id) VALUES';
     
                     nutrientList.forEach((nutrient, index) => {
@@ -360,11 +374,11 @@ router.post('/webapi/save/data', (req, res) => {
                             return;
                         }
     
-                        res.json({ status: "OK" });
+                        updateDataImagesAndResponse(res, dataType, dataId, images, imagesDetail);
                     });
     
                 } else {
-                    res.json({ status: "OK" });
+                    updateDataImagesAndResponse(res, dataType, dataId, images, imagesDetail);
                 }
             });
         }
@@ -372,6 +386,129 @@ router.post('/webapi/save/data', (req, res) => {
     });
 
 });
+
+
+// update images and response
+function updateDataImagesAndResponse(res, dataType, dataId, images, imagesDetail) {
+    let imageList = [];
+    let imageDetailList = [];
+
+    if (!f.isNone(images)) imageList = images.split('|');
+    if (!f.isNone(imagesDetail)) imagesDetail = imagesDetail.split('|');
+
+    if (imageList.length > 0) {
+
+        // DELETE images 일단 기존 image 지워줌
+        let query = "DELETE FROM t_images WHERE i_type = 'DATA_IMAGE' AND i_target_id = ? AND i_data_type = ?";
+        let params = [dataId, dataType];
+
+        o.mysql(query, params, function(error, result) {
+            if (error) {
+                console.log(error);
+                res.json({ status: "ERR_MYSQL" });
+                return;
+            }
+
+            query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order, i_data_type) VALUES ";
+            params = [];
+            for (let i = 0; i < imageList.length; i++) {
+                let image = imageList[i];
+                query += "('DATA_IMAGE', ?, ?, ?, ?)";
+                params.push(image);
+                params.push(dataId);
+                params.push(i + 1);
+                params.push(dataType);
+            }
+
+            o.mysql(query, params, function(error, result) {
+                if (error) {
+                    console.log(error);
+                    res.json({ status: "ERR_MYSQL" });
+                    return;
+                }
+
+                if (imageDetailList.length > 0) {
+                    // DELETE Detail images
+                    query = "DELETE FROM t_images WHERE i_type = 'DATA_IMAGE_DETAIL' AND i_target_id = ? AND i_data_type = ?";
+                    params = [dataId, dataType];
+
+                    o.mysql.query(query, params, function(error, result) {
+                        if (error) {
+                            console.log(error);
+                            res.json({ status: "ERR_MYSQL" });
+                            return;
+                        }
+
+                        // Start INSERT DATA_IMAGE_DETAIL
+                        query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order, i_data_type) VALUES ";
+                        params = [];
+                        for (let i = 0; i < imageDetailList.length; i++) {
+                            let imageDetail = imageDetailList[i];
+                            query += "('DATA_IMAGE_DETAIL', ?, ?, ?, ?)";
+                            params.push(imageDetail);
+                            params.push(dataId);
+                            params.push(i + 1);
+                            params.push(dataType);
+                        }
+                        o.mysql.query(query, params, function(error, result) {
+                            if (error) {
+                                console.log(error);
+                                res.json({ status: "ERR_MYSQL" });
+                                return;
+                            }
+                            res.json({ status: "OK" });
+                        });
+                        // End INSERT DATA_IMAGE_DETAIL
+
+                    });
+    
+                } else {
+                    res.json({ status: "OK" });
+                }
+            });
+        });
+
+    } else {
+        if (imageDetailList.length > 0) {
+            // DELETE Detail images
+            let query = "DELETE FROM t_images WHERE i_type = 'DATA_IMAGE_DETAIL' AND i_target_id = ? AND i_data_type = ?";
+            let params = [dataId, dataType];
+
+            o.mysql.query(query, params, function(error, result) {
+                if (error) {
+                    console.log(error);
+                    res.json({ status: "ERR_MYSQL" });
+                    return;
+                }
+
+                // Start INSERT DATA_IMAGE_DETAIL
+                query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order, i_data_type) VALUES ";
+                params = [];
+                for (let i = 0; i < imageDetailList.length; i++) {
+                    let imageDetail = imageDetailList[i];
+                    query += "('DATA_IMAGE_DETAIL', ?, ?, ?, ?)";
+                    params.push(imageDetail);
+                    params.push(dataId);
+                    params.push(i + 1);
+                    params.push(dataType);
+                }
+                o.mysql.query(query, params, function(error, result) {
+                    if (error) {
+                        console.log(error);
+                        res.json({ status: "ERR_MYSQL" });
+                        return;
+                    }
+                    res.json({ status: "OK" });
+                });
+                // End INSERT DATA_IMAGE_DETAIL
+
+            });
+
+        } else {
+            res.json({ status: "OK" });
+        }
+    }
+}
 
 
 //데이터 삭제
@@ -449,8 +586,8 @@ router.post('/webapi/upload/image', (req, res) => {
 
             } else if (mode == 'DATA_IMAGE' || mode == 'DATA_IMAGE_DETAIL') {
                 // INSERT images
-                let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order) VALUES (?, ?, ?, ?)";
-                let params = [mode, imagePath, dataId, order];
+                let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order, i_data_type) VALUES (?, ?, ?, ?, ?)";
+                let params = [mode, imagePath, dataId, order, dataType];
 
                 o.mysql.query(query, params, function(error, result) {
                     if (error) {
