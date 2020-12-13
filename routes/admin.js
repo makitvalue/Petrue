@@ -207,7 +207,7 @@ router.get('/webapi/get/data', function(req, res) {
             return;
         }
 
-        let dataList = [];
+        let dataList = result;
 
         // dataid 있으면 이미지들까지
         if (!f.isNone(dataId)) {
