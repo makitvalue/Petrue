@@ -196,12 +196,12 @@ router.get('/webapi/get/data', function(req, res) {
     if (!f.isNone(keyword) || !f.isNone(dataId)) query += " WHERE ";
 
     if (!f.isNone(keyword)) {
-        query += "dTab." + t + "_keyword LIKE ?";
+        query += t + "_keyword LIKE ?";
         params.push('%' + keyword + '%');
     }
 
     if (!f.isNone(dataId)) {
-        query += "dTab." + t + "_id = ?";
+        query += t + "_id = ?";
         params.push(dataId);
     }
 
