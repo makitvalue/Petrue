@@ -241,15 +241,16 @@ router.post('/webapi/save/data', (req, res) => {
         desc = req.body.desc;
         descOver = req.body.descOver;
 
+        params = [name, keyword, effect, desc, descOver];
+
         if (mode == 'ADD') {
-            params = [name, keyword, effect, desc, descOver];
             query += "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over) VALUES(?, ?, ?, ?, ?)";
         } else {
             query += "UPDATE t_nutrients SET";
             query += " n_name = ?, n_keyword = ?, n_effect = ?, n_desc = ?";
             query += " n_desc_over = ?, n_updated_date = NOW()";
             query += " WHERE n_id = ?";
-            params = [name, keyword, effect, desc, descOver, dataId];
+            params.push(dataId);
         }
 
     } else if (dataType == 'product') {
@@ -266,58 +267,106 @@ router.post('/webapi/save/data', (req, res) => {
         if (mode == 'ADD') {
             query += "INSERT INTO t_products(p_name, p_keyword, p_price, p_origin, p_manufacturer, p_category, p_packing_volume, p_recommended, p_sub_name) VALUE(?, ?, ?, ?, ?, ?, ?, ?, ?)";
         } else {
-
+            
         }
     }
 
     o.mysql.query(query, params, (error, result) => {
         if (error) {
             console.log(error);
-            res.json({status: "ERR_DB_INSERT"});
+            res.json({ status: "ERR_DB_INSERT" });
             return;
         }
 
-        let pId = dataId;
-        if (mode == 'ADD') dataId = result.insertId;
-        
-        if (nutrients.length > 0) {
-            let table = "t_maps_" + dataType + "_nutrient";
-            let t = "";
+        if (dataType == 'nutrient') {
+            res.json({ status: "OK" });
+            return;
+        }
 
-            if (dataType == 'product') {
-                t = "mpn_";
-            } else if (dataType == 'food') {
-                t = "mfn_";
-            } else if (dataType == 'disease') {
-                t = "mdn_";
-            } else if (dataType == 'symtom') {
-                t = "msn_";
+        let table = "t_maps_" + dataType + "_nutrient";
+        let t = "";
+
+        if (dataType == 'product') {
+            t = "mpn_";
+        } else if (dataType == 'food') {
+            t = "mfn_";
+        } else if (dataType == 'disease') {
+            t = "mdn_";
+        } else if (dataType == 'symtom') {
+            t = "msn_";
+        }
+
+        if (mode == 'ADD') {
+            dataId = result.insertId;
+        
+            // INSERT nutrients
+            if (nutrients.length > 0) {
+                let nutrientList = nutrients.split('|');
+                let query = 'INSERT INTO ' + table + '(' + t + dataType[0] + '_id, ' + t + 'n_id) VALUES';
+
+                nutrientList.forEach((nutrient, index) => {
+
+                    if (index != 0) {
+                        query += ', (' + dataId + ', ' + nutrient + ')';                    
+                    } else {
+                        query += ' (' + dataId + ', ' + nutrient + ')';
+                    }
+                });
+
+                o.mysql.query(query, (error, result) => {
+                    if (error) {
+                        console.log(error);
+                        res.json({status: "ERR_MYSQL"});
+                        return;
+                    }
+
+                    res.json({ status: "OK", dataId: dataId });
+                });
+
+            } else {
+                res.json({ status: "OK", dataId: dataId });
             }
 
-            let nutrientList = nutrients.split('|');
-            let query = 'INSERT INTO ' + table + '(' + t + dataType[0] + '_id, ' + t + 'n_id) VALUES';
+        } else {
+            query = "DELETE FROM " + table + " WHERE " + t + "_" + dataType[0] + "_id = ?";
+            params = [dataId];
 
-            nutrientList.forEach((nutrient, index) => {
-
-                if (index != 0) {
-                    query += ', (' + dataId + ', ' + nutrient + ')';                    
-                } else {
-                    query += ' (' + dataId + ', ' + nutrient + ')';
-                }
-            });
-
-            o.mysql.query(query, (error, result) => {
+            // DELETE nutrients maps
+            o.mysql.query(query, params, (error, result) => {
                 if (error) {
                     console.log(error);
-                    res.json({status: "ERR_MYSQL"});
+                    res.json({ status: "ERR_MYSQL" });
                     return;
                 }
 
-                res.json({status: "OK", dataId: dataId});
+                // INSERT nutrients
+                if (nutrients.length > 0) {
+                    let nutrientList = nutrients.split('|');
+                    let query = 'INSERT INTO ' + table + '(' + t + dataType[0] + '_id, ' + t + 'n_id) VALUES';
+    
+                    nutrientList.forEach((nutrient, index) => {
+    
+                        if (index != 0) {
+                            query += ', (' + dataId + ', ' + nutrient + ')';                    
+                        } else {
+                            query += ' (' + dataId + ', ' + nutrient + ')';
+                        }
+                    });
+    
+                    o.mysql.query(query, (error, result) => {
+                        if (error) {
+                            console.log(error);
+                            res.json({status: "ERR_MYSQL"});
+                            return;
+                        }
+    
+                        res.json({ status: "OK" });
+                    });
+    
+                } else {
+                    res.json({ status: "OK" });
+                }
             });
-
-        } else {
-            res.json({status: "OK", dataId: dataId});
         }
 
     });
