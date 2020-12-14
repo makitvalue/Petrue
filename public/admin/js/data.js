@@ -86,8 +86,6 @@ function getData(keyword) {
                     html += '<td class="name">' + data.n_name + '</td>';
                     html += '<td>' + data.n_keyword + '</td>';
                     html += '<td>' + data.n_effect + '</td>';
-                    html += '<td>' + data.n_desc + '</td>';
-                    html += '<td>' + data.n_desc_over + '</td>';
                     html += '<td>' + data.n_created_date.split(' ')[0] + '</td>';
                 html += '</tr>';
             }
