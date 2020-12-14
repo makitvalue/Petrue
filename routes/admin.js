@@ -216,6 +216,11 @@ router.get('/webapi/get/data', function(req, res) {
 
         // dataid 있으면 이미지들, nutrients까지
         if (!f.isNone(dataId)) {
+            if (dataType == 'nutrient') {
+                res.json({ status: 'OK', result: { dataList: dataList } });
+                return;
+            }
+
             query = "SELECT * FROM t_images WHERE i_target_id = ? AND i_data_type = ? ORDER BY i_order ASC";
             params = [dataId, dataType];
             o.mysql.query(query, params, function(error, result) {
