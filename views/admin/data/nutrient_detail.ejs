@@ -1,0 +1,46 @@
+<input type="hidden" class="js-input-hidden-data-id" value="<%=nId%>">
+
+<div class="wrapper nutrient detail">
+
+    <p class="title"><span>데이터 관리</span><i class="fal fa-chevron-right"></i><span>영양소</span><i class="fal fa-chevron-right"></i><span>자세히</span></p>
+
+    <div class="form-box">
+        <p class="form-title">이름</p>
+        <input class="js-input-detail-title default name" type="text" />
+    </div>
+
+    <div class="form-box">
+        <p class="form-title">키워드</p>
+        <div class="keyword-wrapper">
+            <div class="keyword-input">
+                <input class="js-input-keyword default" type="text" />
+                <button class="js-button-add-keyword default"><i class="fal fa-plus"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-box">
+        <p class="form-title">효과</p>
+        <select class="js-select-effect default">
+            <option value="POSITIVE">긍정적</option>
+            <option value="NORMAL">보통</option>
+            <option value="NEGATIVE">부정적</option>
+        </select>
+    </div>
+
+    <div class="form-box">
+        <p class="form-title">설명</p>
+        <textarea class="js-textarea-desc default"></textarea>
+    </div>
+
+    <div class="form-box">
+        <p class="form-title">과잉섭취시 부작용</p>
+        <textarea class="js-textarea-desc-over default"></textarea>
+    </div>
+
+    <div class="buttons">
+        <button class="default cancel" onclick="history.back();">취소</button>
+        <button class="default js-button-modify-data" data_type="nutrient">저장</button>
+    </div>
+
+</div>

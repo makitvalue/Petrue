@@ -1,0 +1,83 @@
+
+<div class="wrapper food detail">
+
+    <p class="title"><span>데이터 관리</span><i class="fal fa-chevron-right"></i><span>음식</span><i class="fal fa-chevron-right"></i><span>자세히</span></p>
+
+    <div class="form-box">
+        <p class="form-title">썸네일 이미지</p>
+        <div class="thumb-wrapper">
+            <form method="post" enctype="multipart/form-data"><input name="image" class="js-input-upload-thumb" type="file" accept="image/jpeg,image/png" /></form>
+            <div class="js-div-thumb-image thumb"></div>
+            <button class="js-button-upload-thumb default">이미지 업로드</button>
+        </div>
+    </div>
+
+    <div class="form-box">
+        <p class="form-title">이름</p>
+        <input class="js-input-detail-title default" type="text" />
+    </div>
+
+    <div class="form-box">
+        <p class="form-title">키워드</p>
+        <div class="keyword-wrapper">
+            <div class="keyword-input">
+                <input class="js-input-keyword default" type="text" />
+                <button class="js-button-add-keyword default"><i class="fal fa-plus"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-box">
+        <p class="form-title">설명</p>
+        <textarea class="js-textarea-desc1 default"></textarea>
+    </div>
+
+    <div class="form-box">
+        <p class="form-title">주의사항</p>
+        <textarea class="js-textarea-desc2 default"></textarea>
+    </div>
+
+    <div class="form-box">
+        <p class="form-title">이미지</p>
+        <div class="image-wrapper">
+            <form method="post" enctype="multipart/form-data">
+                <input class="js-input-upload-image" name="image" type="file" accept="image/jpeg,image/png" />
+            </form>
+            <button class="js-button-add-image default"><i class="fal fa-plus"></i></button>
+        </div>
+    </div>
+
+    <div class="form-box" data_type="disease">
+        <p class="form-title">연관 질병</p>
+        <div class="relationship-wrapper">
+            <button class="default" data_type="disease"><i class="fal fa-plus"></i></button>
+        </div>
+    </div>
+
+    <div class="form-box" data_type="symptom">
+        <p class="form-title">연관 증상</p>
+        <div class="relationship-wrapper">
+            <button class="default" data_type="symptom"><i class="fal fa-plus"></i></button>
+        </div>
+    </div>
+
+    <div class="form-box" data_type="product">
+        <p class="form-title">연관 제품</p>
+        <div class="relationship-wrapper">
+            <button class="default" data_type="product"><i class="fal fa-plus"></i></button>
+        </div>
+    </div>
+
+    <div class="form-box" data_type="tag">
+        <p class="form-title">기타 태그</p>
+        <div class="relationship-wrapper">
+            <button class="default" data_type="tag"><i class="fal fa-plus"></i></button>
+        </div>
+    </div>
+
+    <div class="buttons">
+        <button class="default cancel" onclick="history.back();">취소</button>
+        <button class="default js-button-modify-data" data_type="food">저장</button>
+    </div>
+
+</div>

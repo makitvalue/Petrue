@@ -30,7 +30,9 @@ function initDataAdd() {
             for (let i = 0; i < categories.length; i++) {
                 html += '<option value=' + categories[i].categoryId + '>' + categories[i].categoryName + '</option>';
             }
+
             selectProductCategory.innerHTML = html;
+
 
             //이미지 추가
             buttonAddImageDetail.addEventListener('click', function() {
@@ -47,10 +49,12 @@ function initDataAdd() {
             });
         }
 
+
         //썸네일 이미지 업로드
         buttonUploadThumb.addEventListener('click', function() {
             inputUploadThumb.click();
         });
+
         //썸네일 input file 파일 체인지 리스너 
         inputUploadThumb.addEventListener('change', function(event) {
             changeInputImage(event, function(result) {
@@ -124,7 +128,7 @@ function initDataAdd() {
                 });
 
                 //getData 부분 (줄일수 있으면 줄여야함)
-                getDataToAdd(dataType, '');
+                getDataToDetail(dataType, '');
 
                 let tbodyDataList = divDialogDataSearch.querySelector('.js-tbody-data-list');
                 let inputDialogDataSearch = divDialogDataSearch.querySelector('.js-input-dialog-data-search');
@@ -133,7 +137,7 @@ function initDataAdd() {
                 //검색버튼 클릭 이벤트
                 buttonDialogSearch.addEventListener('click', function() {
                     let keyword = inputDialogDataSearch.value.trim();
-                    getDataToAdd(dataType, keyword);
+                    getDataToDetail(dataType, keyword);
                 });
 
                 // 엔터키 이벤트 처리
@@ -147,8 +151,6 @@ function initDataAdd() {
             });
 
         });
-
-
     }
 
 
@@ -239,6 +241,7 @@ function initDataAdd() {
 
 
         let dataList = {
+            mode: 'ADD', // EDIT
             dataType: dataType,
             name: name,
             keyword: keywords,
@@ -267,9 +270,10 @@ function initDataAdd() {
         .then(function(response) {
             if (response.status != 'OK') {
                 alert("저장 에러 발생");
+                removeSpinner();
                 return;
             }
-            let pId = response.pId;
+            let dataId = response.dataId;
 
             if (dataType == 'nutrient') {
                 alert('저장 완료');
@@ -280,7 +284,7 @@ function initDataAdd() {
             // thumb
             let form = inputUploadThumb.parentElement;
             let formData = new FormData(form);
-            formData.append('dataId', pId);
+            formData.append('dataId', dataId);
             formData.append('mode', 'THUMB');
             formData.append('dataType', dataType);
 
@@ -295,6 +299,13 @@ function initDataAdd() {
             .then((response) => {
                 if (response.status != 'OK') {
                     alert("이미지 저장 에러!");
+                    removeSpinner();
+                    return;
+                }
+
+                if (dataType != 'product') {
+                    alert('완료');
+                    location.href = '/admin/data/' + dataType;
                     return;
                 }
 
@@ -302,7 +313,6 @@ function initDataAdd() {
                 imageDetailFormList = divDetailImageWrapper.querySelectorAll('.image-box form');
 
                 let totalCnt = imageFormList.length + imageDetailFormList.length;
-                console.log(totalCnt);
 
                 if (totalCnt == 0) {
                     alert('성공');
@@ -314,7 +324,7 @@ function initDataAdd() {
                 imageFormList.forEach(function(imageForm, index) {
                     
                     formData = new FormData(imageForm);
-                    formData.append('dataId', pId);
+                    formData.append('dataId', dataId);
                     formData.append('mode', 'DATA_IMAGE');
                     formData.append('dataType', dataType);
                     formData.append('order', index+1);
@@ -335,7 +345,7 @@ function initDataAdd() {
 
                         if (responseCnt == totalCnt) {
                             removeSpinner();
-                            alert('이미지 저장 성공');
+                            alert('저장 완료');
                             location.href = '/admin/data/' + dataType;
                             return;
                         }
@@ -345,7 +355,7 @@ function initDataAdd() {
 
                 imageDetailFormList.forEach(function(imageForm, index) {
                     formData = new FormData(imageForm);
-                    formData.append('dataId', pId);
+                    formData.append('dataId', dataId);
                     formData.append('mode', 'DATA_IMAGE_DETAIL');
                     formData.append('dataType', dataType);
                     formData.append('order', index+1);
@@ -366,7 +376,7 @@ function initDataAdd() {
 
                         if (responseCnt == totalCnt) {
                             removeSpinner();
-                            alert('이미지 저장 성공');
+                            alert('저장 완료');
                             location.href = '/admin/data/' + dataType;
                             return;
                         }
@@ -401,7 +411,7 @@ function initDataAdd() {
 
 initDataAdd();
 
-function getDataToAdd(dataType, keyword) {
+function getDataToDetail(dataType, keyword) {
     let tbodyDataList = document.querySelector('.js-tbody-data-list');
 
     createSpinner();

@@ -85,7 +85,12 @@ global.f.generateRandomId = function() {
     var pad = rand.length >= 4 ? rand : new Array(4 - rand.length + 1).join('0') + rand;
     var random_id = moment().format("YYMMDDHHmmss") + pad;
     return random_id;
-}
+};
+
+global.f.isNone = function(value) {
+    if (typeof value == 'undefined' || value == null || value == '') return true;
+    return false;
+};
 
 
 module.exports = app;
