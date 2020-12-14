@@ -1,0 +1,35 @@
+
+<div class="wrapper tag">
+
+    <p class="title"><span>데이터 관리</span><i class="fal fa-chevron-right"></i><span>기타 태그</span></p>
+
+    <div class="controller">
+        <div class="search-box">
+            <select>
+                <option selected>이름</option>
+            </select>
+            <input class="js-input-data-search" type="text" placeholder="검색어를 입력해주세요." />
+            <button class="js-button-data-search default">검색</button>
+        </div>
+        <hr />
+        <div class="control-buttons">
+            <button class="js-button-select-all default left">전체선택</button>
+            <button class="js-button-selected-remove default disabled">선택된 데이터 삭제</button>
+            <button class="js-button-add-tag default">태그 데이터 추가</button>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th width="50">#</th>
+                <th>이름</th>
+                <th>키워드</th>
+                <th>생성일</th>
+            </tr>
+        </thead>
+        <tbody class="js-tbody-data-list" data_type="tag" >
+        </tbody>
+    </table>
+
+</div>
